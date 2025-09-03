@@ -6,7 +6,7 @@ import { Codemirror } from "vue-codemirror";
 import { markdown } from "@codemirror/lang-markdown";
 import { oneDark } from "@codemirror/theme-one-dark";
 
-const extensions = [markdown()];
+const extensions = [markdown(), oneDark];
 const md = new MarkdownIt();
 
 const markdownText = ref(`# Hello Markdown !
@@ -18,7 +18,7 @@ const markdownText = ref(`# Hello Markdown !
 const renderedHtml = computed(() => md.render(markdownText.value));
 
 // Référence à la div de preview (pour exporter en PDF)
-// const previewRef = ref(null);
+const previewRef = ref(null);
 
 // Fonction d'export PDF
 const exportToPdf = () => {
@@ -45,7 +45,6 @@ const exportToPdf = () => {
 			<codemirror
 				v-model="markdownText"
 				:extensions="extensions"
-				:theme="oneDark"
 				placeholder="Écris ton Markdown ici..."
 				style="height: 300px; border-radius: 0px; border: 1px solid #333; margin-bottom: 1rem;"
 			/>
