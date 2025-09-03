@@ -1,7 +1,6 @@
 <script setup>
 import { ref, computed } from "vue";
 import MarkdownIt from "markdown-it";
-// import html2pdf from "html2pdf.js";
 import jsPDF from "jspdf";
 
 const markdownText = ref(`# Hello Markdown !
@@ -19,33 +18,22 @@ const previewRef = ref(null);
 
 // Fonction d'export PDF
 const exportToPdf = () => {
-if (!markdownText.value) return;
-
-// const opt = {
-//   margin: 0.5,
-//   filename: "markdown-export.pdf",
-//   image: { type: "jpeg", quality: 0.98 },
-//   html2canvas: { scale: 2 },
-//   jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
-// };
-
-// html2pdf().from(renderedHtml.value).set(opt).save();
-const doc = new jsPDF("p", "pt", "a4");
-
-doc.html(renderedHtml.value, {
-	callback: function (doc) {
-		doc.save("markdown-export.pdf");
-	},
-	x: 20,
-	y: 20,
-	width: 550, // largeur max
-	windowWidth: 800 // meilleure fidélité de rendu
+	if (!markdownText.value) return;
+	const doc = new jsPDF("p", "pt", "a4");
+	doc.html(renderedHtml.value, {
+		callback: function (doc) {
+			doc.save("Markkk-export.pdf");
+		},
+		x: 20,
+		y: 20,
+		width: 550, // largeur max
+		windowWidth: 800 // meilleure fidélité de rendu
 	});
 };
 </script>
 
 <template>
-	<h1 class="title">📝 Éditeur Markdown → PDF</h1>
+	<h1 class="title">Markkk</h1>
 
 	<div class="editor-preview">
 		<!-- Éditeur Markdown -->
