@@ -2,19 +2,23 @@
 import { ref, computed } from "vue";
 import MarkdownIt from "markdown-it";
 import jsPDF from "jspdf";
+import { Codemirror } from "vue-codemirror";
+import { markdown } from "@codemirror/lang-markdown";
+import { oneDark } from "@codemirror/theme-one-dark";
+
+const extensions = [markdown()];
+const md = new MarkdownIt();
 
 const markdownText = ref(`# Hello Markdown !
 - Ceci est une liste
 - **Texte en gras**
 - _Italique_`);
 
-const md = new MarkdownIt();
-
 // HTML rendu depuis le texte Markdown
 const renderedHtml = computed(() => md.render(markdownText.value));
 
 // Référence à la div de preview (pour exporter en PDF)
-const previewRef = ref(null);
+// const previewRef = ref(null);
 
 // Fonction d'export PDF
 const exportToPdf = () => {
@@ -38,10 +42,13 @@ const exportToPdf = () => {
 	<div class="editor-preview">
 		<!-- Éditeur Markdown -->
 		<div class="editor">
-			<textarea
-			v-model="markdownText"
-			placeholder="Écris ton Markdown ici..."
-			></textarea>
+			<codemirror
+				v-model="markdownText"
+				:extensions="extensions"
+				:theme="oneDark"
+				placeholder="Écris ton Markdown ici..."
+				style="height: 300px; border-radius: 0px; border: 1px solid #333; margin-bottom: 1rem;"
+			/>
 		</div>
 
 		<!-- Preview Markdown -->
@@ -56,55 +63,48 @@ const exportToPdf = () => {
 
 <style>
 .app {
-  max-width: 1000px;
-  margin: auto;
-  padding: 20px;
-  font-family: sans-serif;
+	max-width: 1000px;
+	margin: auto;
+	padding: 20px;
+	font-family: sans-serif;
 }
 
 .title {
-  text-align: center;
-  margin-bottom: 20px;
+	text-align: center;
+	margin-bottom: 20px;
 }
 
 .editor-preview {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 20px;
+	display: flex;
+	gap: 20px;
+	margin-bottom: 20px;
 }
 
 .editor,
 .preview {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
 }
 
 .pdf-content {
-  font-family: Arial, Helvetica, sans-serif;
+	font-family: Arial, Helvetica, sans-serif;
 }
 
-textarea {
-  flex: 1;
-  padding: 10px;
-  font-family: monospace;
-  font-size: 14px;
-  resize: vertical;
-  min-height: 300px;
-}
+/* Le textarea est remplacé par CodeMirror, donc on peut retirer ce style */
 
 .preview div {
-  border: 1px solid #ddd;
-  padding: 10px;
-  background: #fafafa;
-  flex: 1;
-  overflow-y: auto;
+	border: 1px solid #ddd;
+	padding: 10px;
+	background: #fafafa;
+	flex: 1;
+	overflow-y: auto;
 }
 button {
-  display: block;
-  margin: auto;
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
+	display: block;
+	margin: auto;
+	padding: 10px 20px;
+	font-size: 16px;
+	cursor: pointer;
 }
 </style>
