@@ -37,7 +37,10 @@ const exportToPdf = () => {
 </script>
 
 <template>
-	<h1 class="title">Markkk</h1>
+	<h1 class="title">
+		<font-awesome-icon icon="fa-solid fa-house" />
+		Markkk
+	</h1>
 
 	<div class="editor-preview">
 		<!-- Éditeur Markdown -->
@@ -57,7 +60,7 @@ const exportToPdf = () => {
 	</div>
 
 	<!-- Bouton Export -->
-	<button @click="exportToPdf">📄 Exporter en PDF</button>
+	<button class="btn btn-defualt" @click="exportToPdf">📄 Exporter en PDF</button>
 </template>
 
 <style>

@@ -1,5 +1,3 @@
 # Markkk
 
-- vue-material-design-icons
-- tailwindCSS
-- daisyUI
+Éditeur de Markdown + Convertisseur en PDF

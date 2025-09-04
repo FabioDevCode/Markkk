@@ -1,0 +1,198 @@
+.pdf-content, .pdf-content * { box-sizing: border-box; }
+
+.pdf-content {
+	--font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans", sans-serif;
+	--font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+	--text: #111;
+	--muted: #555;
+	--border: #ddd;
+	--bg-code: #f6f8fa;
+	--bg-quote: #f9f9f9;
+
+	color: var(--text);
+	font-family: var(--font-body);
+	line-height: 1.6;
+	font-size: 12pt;
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+	word-wrap: break-word;
+	overflow-wrap: anywhere;
+
+	border: 1px solid #ddd;
+	padding: 10px;
+	background: #fafafa;
+	flex: 1;
+	overflow-y: auto;
+}
+
+pdf-content > *:first-child { margin-top: 0; }
+.pdf-content > *:last-child  { margin-bottom: 0; }
+
+.pdf-content p,
+.pdf-content ul,
+.pdf-content ol,
+.pdf-content blockquote,
+.pdf-content pre,
+.pdf-content table,
+.pdf-content figure {
+  margin: 0 0 0.9em;
+}
+
+/* Titres */
+.pdf-content h1,
+.pdf-content h2,
+.pdf-content h3,
+.pdf-content h4,
+.pdf-content h5,
+.pdf-content h6 {
+  line-height: 1.25;
+  margin: 0.5em 0 0.5em;
+  font-weight: 700;
+}
+.pdf-content h1 { font-size: 1.9em; }
+.pdf-content h2 { font-size: 1.6em; border-bottom: 1px solid var(--border); padding-bottom: 0.25em; }
+.pdf-content h3 { font-size: 1.3em; }
+.pdf-content h4 { font-size: 1.15em; }
+.pdf-content h5 { font-size: 1.05em; }
+.pdf-content h6 { font-size: 1em; color: var(--muted); text-transform: uppercase; letter-spacing: .02em; }
+
+/* Liens */
+.pdf-content a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: from-font;
+  text-underline-offset: 2px;
+  word-break: break-word;
+}
+
+/* Listes */
+.pdf-content ul { padding-left: 1.4em; list-style: disc; }
+.pdf-content ol { padding-left: 1.6em; }
+.pdf-content li { margin: 0.25em 0; }
+.pdf-content li > ul, .pdf-content li > ol { margin-top: 0.25em; }
+
+/* Listes de tâches (GitHub-style) */
+.pdf-content input[type="checkbox"] {
+  width: 0.9em; height: 0.9em; vertical-align: middle; margin-right: .5em;
+}
+
+/* Citations */
+.pdf-content blockquote {
+  margin: 1em 0;
+  padding: 0.6em 1em;
+  border-left: 4px solid var(--border);
+  background: var(--bg-quote);
+  color: var(--muted);
+}
+.pdf-content blockquote > :last-child { margin-bottom: 0; }
+
+/* Code inline & blocs */
+.pdf-content code,
+.pdf-content kbd,
+.pdf-content samp {
+  font-family: var(--font-mono);
+  font-size: .95em;
+}
+
+.pdf-content p code,
+.pdf-content li code,
+.pdf-content table code {
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  padding: .1em .3em;
+  border-radius: 3px;
+}
+
+.pdf-content pre {
+  background: var(--bg-code);
+  padding: 0.9em 1.1em;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.pdf-content pre code { border: 0; background: transparent; padding: 0; font-size: 0.95em; display: block; }
+
+/* Règle horizontale */
+.pdf-content hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 1.5em 0;
+}
+
+/* Images & figures */
+.pdf-content img, .pdf-content svg, .pdf-content video {
+  max-width: 100%;
+  height: auto;
+}
+.pdf-content figure { display: inline-block; max-width: 100%; }
+.pdf-content figure img { display: block; }
+.pdf-content figcaption {
+  font-size: 0.9em;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 0.4em;
+}
+
+/* Tableaux */
+.pdf-content table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.pdf-content th,
+.pdf-content td {
+  border: 1px solid var(--border);
+  padding: 0.5em 0.6em;
+  vertical-align: top;
+}
+.pdf-content thead th {
+  text-align: left;
+  background: #fafafa;
+}
+.pdf-content tbody tr:nth-child(even) { background: #fcfcfc; }
+
+/* Notes de bas de page / petites notes */
+.pdf-content sup, .pdf-content sub { line-height: 0; }
+.pdf-content small { color: var(--muted); }
+
+/* Détails / résumé (MD étendu) */
+.pdf-content details {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .6em .8em;
+  background: #fff;
+}
+.pdf-content summary {
+  cursor: pointer;
+  font-weight: 600;
+  outline: none;
+}
+
+/* Alignements (Markdown HTML) */
+.pdf-content .align-center, .pdf-content .text-center { text-align: center; }
+.pdf-content .align-right,  .pdf-content .text-right  { text-align: right;  }
+.pdf-content .align-left,   .pdf-content .text-left   { text-align: left;   }
+
+/* Gestion des sauts de page pour PDF */
+@media print {
+  .pdf-content {
+    widows: 2; orphans: 2;
+    hyphens: auto;
+  }
+  .pdf-content h1, .pdf-content h2, .pdf-content h3 { page-break-after: avoid; }
+  .pdf-content table, .pdf-content pre, .pdf-content blockquote, .pdf-content figure { page-break-inside: avoid; }
+  .pdf-content img { page-break-inside: avoid; }
+  .pdf-content a { text-decoration: none; }
+}
+
+/* Petites améliorations d’accessibilité */
+.pdf-content mark { background: #fff59d; padding: .05em .2em; }
+.pdf-content abbr[title] { text-decoration: underline dotted; cursor: help; }
+
+/* Marges optionnelles autour du conteneur (désactivez si géré ailleurs) */
+.pdf-content.wrapper {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px;
+}
