@@ -1,5 +1,7 @@
 <script setup>
 import { ref, computed } from "vue";
+import html2canvas from "html2canvas-pro";
+window.html2canvas = html2canvas;
 import MarkdownIt from "markdown-it";
 import jsPDF from "jspdf";
 import { Codemirror } from "vue-codemirror";
