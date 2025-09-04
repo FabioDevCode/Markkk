@@ -73,10 +73,10 @@ const exportToPdf = () => {
 							v-model="markdownText"
 							:extensions="extensions"
 							placeholder="Écris ton Markdown ici..."
-							style="height: 100%;"
+							style="height: 100%; font-size: 14px;"
 						/>
 
-						<div class="absolute bottom-2 right-2 flex flex-col gap-3">
+						<div class="absolute bottom-3 right-3 flex flex-col gap-3">
 							<div class="tooltip tooltip-left" data-tip="Sauvegarder">
 								<button class="btn btn-lg btn-circle btn-neutral">
 									<font-awesome-icon icon="fa-solid fa-floppy-disk" />
@@ -89,9 +89,9 @@ const exportToPdf = () => {
 					<div class="preview relative" ref="previewRef">
 						<div class="pdf-content" v-html="renderedHtml"></div>
 
-						<div class="absolute bottom-4 right-4 flex flex-col gap-3">
+						<div class="absolute bottom-3 right-3 flex flex-col gap-3">
 							<div class="tooltip tooltip-left" data-tip="Télécharger le PDF">
-								<button class="btn btn-lg btn-circle btn-soft">
+								<button @click="exportToPdf" class="btn btn-lg btn-circle btn-soft">
 									<font-awesome-icon icon="fa-solid fa-download" />
 								</button>
 							</div>
@@ -99,17 +99,16 @@ const exportToPdf = () => {
 					</div>
 				</div>
 			</div>
-
 		</div>
 
 		<!-- Sidebar -->
 		<div class="drawer-side">
 			<label for="my-drawer" class="drawer-overlay"></label>
-            <div class="items-center justify-center pt-10 pb-8 bg-base-200 w-full hidden lg:flex">
-				<img class="h-18" src="/img/Markkk.svg" alt="Hadent logo">
+            <div class="items-center justify-center pt-8 pb-4 bg-base-200 w-full hidden lg:flex">
+				<img class="h-14" src="/img/Markkk.svg" alt="Hadent logo">
 			</div>
 
-			<ul class="menu p-4 w-70 min-h-full bg-base-200 text-base-content">
+			<ul class="menu p-4 w-64 min-h-full bg-base-200 text-base-content">
 				<li>
 					<a class="py-3 text-base">
 						<font-awesome-icon icon="fa-solid fa-plus" />
@@ -119,30 +118,4 @@ const exportToPdf = () => {
 			</ul>
 		</div>
 	</div>
-
-
-
-	<!--
-		<h1 class="title">
-			<font-awesome-icon icon="fa-solid fa-house" />
-			Markkk
-		</h1>
-		<button class="btn btn-defualt" @click="exportToPdf">📄 Exporter en PDF</button>
-	-->
-
 </template>
-
-<style>
-.editor-preview {
-	display: flex;
-	background-color: crimson;
-	height: calc(100vh - 70px);
-}
-
-.editor,
-.preview {
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-}
-</style>
