@@ -39,7 +39,6 @@ const exportToPdf = () => {
 
 <template>
 	<div class="drawer lg:drawer-open">
-		<!-- toggle (toujours coché) -->
 		<input id="my-drawer" type="checkbox" class="drawer-toggle" checked />
 
 		<!-- Zone principale -->
@@ -48,15 +47,14 @@ const exportToPdf = () => {
 			<div class="navbar bg-base-100 shadow">
 				<div class="flex-1 px-1">
 					<div class="drawer-content">
-						<!-- Page content here -->
 						<label for="my-drawer" class="btn btn-ghost drawer-button lg:hidden" style="font-size: 18px; width: 40px;">
 							<font-awesome-icon icon="fa-solid fa-bars-staggered" />
 						</label>
+
 						<h1 class="hidden lg:flex text-2xl font-semibold">
-							Markkk
+							Markkk !
 						</h1>
 					</div>
-					<!-- <a class="btn btn-ghost normal-case text-xl">Mon App</a> -->
 				</div>
 				<div class="flex-none">
 					<!-- <ul class="menu menu-horizontal px-1">
@@ -69,22 +67,39 @@ const exportToPdf = () => {
 			<!-- Contenu principal -->
 			<div>
 				<div class="editor-preview">
-					<!-- Éditeur Markdown -->
-					<div class="editor">
+					<!-- Editeur Markdown -->
+					<div class="editor relative">
 						<codemirror
 							v-model="markdownText"
 							:extensions="extensions"
 							placeholder="Écris ton Markdown ici..."
 							style="height: 100%;"
 						/>
+
+						<div class="absolute bottom-2 right-2 flex flex-col gap-3">
+							<div class="tooltip tooltip-left" data-tip="Sauvegarder">
+								<button class="btn btn-lg btn-circle btn-neutral">
+									<font-awesome-icon icon="fa-solid fa-floppy-disk" />
+								</button>
+							</div>
+						</div>
 					</div>
 
 					<!-- Preview Markdown -->
-					<div class="preview" ref="previewRef">
+					<div class="preview relative" ref="previewRef">
 						<div class="pdf-content" v-html="renderedHtml"></div>
+
+						<div class="absolute bottom-4 right-4 flex flex-col gap-3">
+							<div class="tooltip tooltip-left" data-tip="Télécharger le PDF">
+								<button class="btn btn-lg btn-circle btn-soft">
+									<font-awesome-icon icon="fa-solid fa-download" />
+								</button>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
+
 		</div>
 
 		<!-- Sidebar -->
