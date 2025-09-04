@@ -18,7 +18,6 @@ const markdownText = ref(`# Hello Markdown !
 
 // HTML rendu depuis le texte Markdown
 const renderedHtml = computed(() => md.render(markdownText.value));
-
 // Référence à la div de preview (pour exporter en PDF)
 const previewRef = ref(null);
 
@@ -32,56 +31,97 @@ const exportToPdf = () => {
 		},
 		x: 20,
 		y: 20,
-		width: 550, // largeur max
-		windowWidth: 800 // meilleure fidélité de rendu
+		width: 550,
+		windowWidth: 800
 	});
 };
 </script>
 
 <template>
-	<h1 class="title">
-		<font-awesome-icon icon="fa-solid fa-house" />
-		Markkk
-	</h1>
+	<div class="drawer lg:drawer-open">
+		<!-- toggle (toujours coché) -->
+		<input id="my-drawer" type="checkbox" class="drawer-toggle" checked />
 
-	<div class="editor-preview">
-		<!-- Éditeur Markdown -->
-		<div class="editor">
-			<codemirror
-				v-model="markdownText"
-				:extensions="extensions"
-				placeholder="Écris ton Markdown ici..."
-				style="height: 300px; border-radius: 0px; border: 1px solid #333; margin-bottom: 1rem;"
-			/>
+		<!-- Zone principale -->
+		<div class="drawer-content flex flex-col">
+			<!-- NAVBAR -->
+			<div class="navbar bg-base-100 shadow">
+				<div class="flex-1 px-1">
+					<div class="drawer-content">
+						<!-- Page content here -->
+						<label for="my-drawer" class="btn btn-ghost drawer-button lg:hidden" style="font-size: 18px; width: 40px;">
+							<font-awesome-icon icon="fa-solid fa-bars-staggered" />
+						</label>
+						<h1 class="hidden lg:flex text-2xl font-semibold">
+							Markkk
+						</h1>
+					</div>
+					<!-- <a class="btn btn-ghost normal-case text-xl">Mon App</a> -->
+				</div>
+				<div class="flex-none">
+					<!-- <ul class="menu menu-horizontal px-1">
+						<li><a></a></li>
+					</ul> -->
+					<img class="h-8 lg:hidden" src="/img/Markkk.svg" alt="Hadent logo">
+				</div>
+			</div>
+
+			<!-- Contenu principal -->
+			<div>
+				<div class="editor-preview">
+					<!-- Éditeur Markdown -->
+					<div class="editor">
+						<codemirror
+							v-model="markdownText"
+							:extensions="extensions"
+							placeholder="Écris ton Markdown ici..."
+							style="height: 100%;"
+						/>
+					</div>
+
+					<!-- Preview Markdown -->
+					<div class="preview" ref="previewRef">
+						<div class="pdf-content" v-html="renderedHtml"></div>
+					</div>
+				</div>
+			</div>
 		</div>
 
-		<!-- Preview Markdown -->
-		<div class="preview" ref="previewRef">
-			<div class="pdf-content" v-html="renderedHtml"></div>
+		<!-- Sidebar -->
+		<div class="drawer-side">
+			<label for="my-drawer" class="drawer-overlay"></label>
+            <div class="items-center justify-center pt-10 pb-8 bg-base-200 w-full hidden lg:flex">
+				<img class="h-18" src="/img/Markkk.svg" alt="Hadent logo">
+			</div>
+
+			<ul class="menu p-4 w-70 min-h-full bg-base-200 text-base-content">
+				<li>
+					<a class="py-3 text-base">
+						<font-awesome-icon icon="fa-solid fa-plus" />
+						Nouveau
+					</a>
+				</li>
+			</ul>
 		</div>
 	</div>
 
-	<!-- Bouton Export -->
-	<button class="btn btn-defualt" @click="exportToPdf">📄 Exporter en PDF</button>
+
+
+	<!--
+		<h1 class="title">
+			<font-awesome-icon icon="fa-solid fa-house" />
+			Markkk
+		</h1>
+		<button class="btn btn-defualt" @click="exportToPdf">📄 Exporter en PDF</button>
+	-->
+
 </template>
 
 <style>
-.app {
-	max-width: 1000px;
-	margin: auto;
-	padding: 20px;
-	font-family: sans-serif;
-}
-
-.title {
-	text-align: center;
-	margin-bottom: 20px;
-}
-
 .editor-preview {
 	display: flex;
-	gap: 20px;
-	margin-bottom: 20px;
+	background-color: crimson;
+	height: calc(100vh - 70px);
 }
 
 .editor,
@@ -89,26 +129,5 @@ const exportToPdf = () => {
 	flex: 1;
 	display: flex;
 	flex-direction: column;
-}
-
-.pdf-content {
-	font-family: Arial, Helvetica, sans-serif;
-}
-
-/* Le textarea est remplacé par CodeMirror, donc on peut retirer ce style */
-
-.preview div {
-	border: 1px solid #ddd;
-	padding: 10px;
-	background: #fafafa;
-	flex: 1;
-	overflow-y: auto;
-}
-button {
-	display: block;
-	margin: auto;
-	padding: 10px 20px;
-	font-size: 16px;
-	cursor: pointer;
 }
 </style>
