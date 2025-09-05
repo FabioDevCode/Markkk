@@ -74,6 +74,19 @@ const saveToIndexedDB = async () => {
 			<!-- Contenu principal -->
 			<div>
 				<div class="editor-preview">
+					<!-- Dropdown pour actions sur docuements existant -->
+					<ul class="dropdown menu w-36 rounded-box bg-base-100 shadow-sm"
+					popover id="popover-1" style="position-anchor:--anchor-1">
+						<li><a>
+							<font-awesome-icon icon="fa-solid fa-pencil" />
+							Renommer
+						</a></li>
+						<li class="text-error"><a>
+							<font-awesome-icon icon="fa-solid fa-trash-can" />
+							Supprimer
+						</a></li>
+					</ul>
+
 					<!-- Editeur Markdown -->
 					<div class="editor relative">
 						<codemirror
@@ -123,29 +136,20 @@ const saveToIndexedDB = async () => {
 					</a>
 				</li>
 
-				<!-- <div class="divider divider-start text-grey">Documents</div> -->
-				<!-- <li class="menu-title">Documents</li> -->
-
 				<br>
 
-				<li class="menu-title text-grey">Documents</li>
-				<li>
-					<a class="flex justify-between">
-						Item 1
-						<font-awesome-icon icon="fa-solid fa-ellipsis" />
-					</a>
-				</li>
-				<li><a>Item 2</a></li>
-				<li><a>Item 3</a></li>
+				<div class="divider divider-start text-grey">Documents</div>
+				<!-- <li class="menu-title text-grey">Documents</li> -->
 
-				<!-- <li>
-					<h2 class="menu-title text-grey">Documents</h2>
-					<ul>
-						<li><a>Item 1</a></li>
-						<li><a>Item 2</a></li>
-						<li><a>Item 3</a></li>
-					</ul>
-				</li> -->
+				<li class="flex flex-row h-[36px] items-center justify-between">
+					<a class="w-[86%]">
+						Document 1
+					</a>
+					<!-- Bouton pour dropdown d'action pour les docuements existant -->
+					<button @click.stop class="btn btn-xs btn-circle btn-ghost text-sm" popovertarget="popover-1" style="anchor-name:--anchor-1">
+						<font-awesome-icon icon="fa-solid fa-ellipsis" />
+					</button>
+				</li>
 
 			</ul>
 		</div>
