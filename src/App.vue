@@ -7,6 +7,7 @@ import jsPDF from "jspdf";
 import { Codemirror } from "vue-codemirror";
 import { markdown } from "@codemirror/lang-markdown";
 import { oneDark } from "@codemirror/theme-one-dark";
+import { saveDocument } from "@/utils/db";
 
 const extensions = [markdown(), oneDark];
 const md = new MarkdownIt();
@@ -35,6 +36,13 @@ const exportToPdf = () => {
 		windowWidth: 800
 	});
 };
+
+// Sauvegarde dans IndexedDB
+const saveToIndexedDB = async () => {
+	if (!markdownText.value) return;
+	const doc = await saveDocument(markdownText.value);
+	alert(`Document "${doc.name}" sauvegardé !`);
+};
 </script>
 
 <template>
@@ -47,20 +55,19 @@ const exportToPdf = () => {
 			<div class="navbar bg-base-100 shadow">
 				<div class="flex-1 px-1">
 					<div class="drawer-content">
-						<label for="my-drawer" class="btn btn-ghost drawer-button lg:hidden" style="font-size: 18px; width: 40px;">
+						<label for="my-drawer" class="btn btn-ghost btn-circle drawer-button lg:hidden text-base">
 							<font-awesome-icon icon="fa-solid fa-bars-staggered" />
 						</label>
-
-						<h1 class="hidden lg:flex text-2xl font-semibold">
-							Markkk !
-						</h1>
 					</div>
 				</div>
 				<div class="flex-none">
 					<!-- <ul class="menu menu-horizontal px-1">
 						<li><a></a></li>
 					</ul> -->
-					<img class="h-8 lg:hidden" src="/img/Markkk.svg" alt="Hadent logo">
+					<img class="h-10 lg:hidden" src="/img/Markkk.svg" alt="Markkk logo">
+					<h1 class="hidden lg:flex text-2xl font-semibold">
+						Markkk !
+					</h1>
 				</div>
 			</div>
 
@@ -78,7 +85,7 @@ const exportToPdf = () => {
 
 						<div class="absolute bottom-3 right-3 flex flex-col gap-3">
 							<div class="tooltip tooltip-left" data-tip="Sauvegarder">
-								<button class="btn btn-lg btn-circle btn-neutral">
+								<button @click="saveToIndexedDB" class="btn btn-lg btn-circle btn-neutral">
 									<font-awesome-icon icon="fa-solid fa-floppy-disk" />
 								</button>
 							</div>
@@ -105,16 +112,41 @@ const exportToPdf = () => {
 		<div class="drawer-side">
 			<label for="my-drawer" class="drawer-overlay"></label>
             <div class="items-center justify-center pt-8 pb-4 bg-base-200 w-full hidden lg:flex">
-				<img class="h-14" src="/img/Markkk.svg" alt="Hadent logo">
+				<img class="h-14" src="/img/Markkk.svg" alt="Markkk logo">
 			</div>
 
 			<ul class="menu p-4 w-64 min-h-full bg-base-200 text-base-content">
 				<li>
-					<a class="py-3 text-base">
+					<a class="py-2 text-base gap-1">
 						<font-awesome-icon icon="fa-solid fa-plus" />
 						Nouveau
 					</a>
 				</li>
+
+				<!-- <div class="divider divider-start text-grey">Documents</div> -->
+				<!-- <li class="menu-title">Documents</li> -->
+
+				<br>
+
+				<li class="menu-title text-grey">Documents</li>
+				<li>
+					<a class="flex justify-between">
+						Item 1
+						<font-awesome-icon icon="fa-solid fa-ellipsis" />
+					</a>
+				</li>
+				<li><a>Item 2</a></li>
+				<li><a>Item 3</a></li>
+
+				<!-- <li>
+					<h2 class="menu-title text-grey">Documents</h2>
+					<ul>
+						<li><a>Item 1</a></li>
+						<li><a>Item 2</a></li>
+						<li><a>Item 3</a></li>
+					</ul>
+				</li> -->
+
 			</ul>
 		</div>
 	</div>
