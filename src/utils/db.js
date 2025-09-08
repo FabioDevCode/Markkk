@@ -14,10 +14,10 @@ export const initDB = async () => {
 	});
 };
 
-export const saveDocument = async (content) => {
+export const saveDocument = async (content, named = null) => {
 	const db = await initDB();
 	const id = crypto.randomUUID(); // identifiant unique
-	const name = "doc-" + Math.random().toString(36).substring(2, 8); // nom aléatoire
+	const name = named || "doc-" + Math.random().toString(36).substring(2, 8);
 
 	const doc = {
 		id,
@@ -35,6 +35,7 @@ export const getDocuments = async () => {
 	return db.getAll(STORE_NAME);
 };
 
+// Peut inutile
 export const getDocument = async (id) => {
 	const db = await initDB();
 	return db.get(STORE_NAME, id);

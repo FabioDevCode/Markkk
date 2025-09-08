@@ -33,3 +33,9 @@ body, html {
 	display: flex;
 	flex-direction: column;
 }
+
+.modal {
+	display: flex !important;
+	align-items: center;
+	justify-content: center;
+}

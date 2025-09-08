@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, reactive, computed, onMounted } from "vue";
 import html2canvas from "html2canvas-pro";
 window.html2canvas = html2canvas;
 import MarkdownIt from "markdown-it";
@@ -7,20 +7,45 @@ import jsPDF from "jspdf";
 import { Codemirror } from "vue-codemirror";
 import { markdown } from "@codemirror/lang-markdown";
 import { oneDark } from "@codemirror/theme-one-dark";
-import { saveDocument } from "@/utils/db";
+import { saveDocument, getDocuments, deleteDocument } from "@/utils/db";
 
 const extensions = [markdown(), oneDark];
 const md = new MarkdownIt();
 
-const markdownText = ref(`# Hello Markdown !
-- Ceci est une liste
-- **Texte en gras**
-- _Italique_`);
+const markdownText = ref('');
+const documents = ref([]);
+const modalRefs = reactive({});
+const currentDoc = ref(null);
 
 // HTML rendu depuis le texte Markdown
 const renderedHtml = computed(() => md.render(markdownText.value));
-// Référence à la div de preview (pour exporter en PDF)
-const previewRef = ref(null);
+
+// Charger tous les documents au montage
+onMounted(async () => {
+	loadDocuments();
+});
+
+const loadDocuments = async () => {
+  	documents.value = await getDocuments();
+};
+
+// Ouvrir une modal
+const openModal = (id) => {
+  	modalRefs[id]?.showModal();
+};
+
+// Fermer une modal
+const closeModal = (id) => {
+	const popover = document.getElementById(`popover-${id}`);
+  	if (popover) popover.hidePopover();
+  	modalRefs[id]?.close();
+};
+
+const removeDocument = async (id) => {
+	closeModal(id);
+  	await deleteDocument(id);
+  	await loadDocuments(); // refresh la liste
+};
 
 // Fonction d'export PDF
 const exportToPdf = () => {
@@ -41,8 +66,10 @@ const exportToPdf = () => {
 const saveToIndexedDB = async () => {
 	if (!markdownText.value) return;
 	const doc = await saveDocument(markdownText.value);
-	alert(`Document "${doc.name}" sauvegardé !`);
+	// alert(`Document "${doc.name}" sauvegardé !`);
+	await loadDocuments();
 };
+
 </script>
 
 <template>
@@ -64,8 +91,8 @@ const saveToIndexedDB = async () => {
 					<!-- <ul class="menu menu-horizontal px-1">
 						<li><a></a></li>
 					</ul> -->
-					<img class="h-10 lg:hidden" src="/img/Markkk.svg" alt="Markkk logo">
-					<h1 class="hidden lg:flex text-2xl font-semibold">
+					<img class="h-10 lg:hidden px-1" src="/img/Markkk.svg" alt="Markkk logo">
+					<h1 class="hidden lg:flex text-2xl px-1 font-semibold">
 						Markkk !
 					</h1>
 				</div>
@@ -74,17 +101,51 @@ const saveToIndexedDB = async () => {
 			<!-- Contenu principal -->
 			<div>
 				<div class="editor-preview">
-					<!-- Dropdown pour actions sur docuements existant -->
-					<ul class="dropdown menu w-36 rounded-box bg-base-100 shadow-sm"
-					popover id="popover-1" style="position-anchor:--anchor-1">
-						<li><a>
+					<ul
+						v-for="doc in documents"
+						:key="doc.id"
+						class="dropdown menu w-36 rounded-box bg-base-100 shadow-sm"
+						popover
+						:id="`popover-${doc.id}`"
+						:style="`position-anchor:--anchor-${doc.id}`"
+					>
+						<li>
+							<a>
 							<font-awesome-icon icon="fa-solid fa-pencil" />
 							Renommer
-						</a></li>
-						<li class="text-error"><a>
-							<font-awesome-icon icon="fa-solid fa-trash-can" />
-							Supprimer
-						</a></li>
+							</a>
+						</li>
+
+						<li>
+							<a class="text-error" @click="openModal(doc.id)">
+								<font-awesome-icon icon="fa-solid fa-trash-can" />
+								Supprimer
+							</a>
+						</li>
+
+						<!-- Modal avec ref dynamique -->
+						<dialog
+							class="modal"
+							:ref="el => { if (el) modalRefs[doc.id] = el }"
+						>
+							<div class="modal-box">
+								<h3 class="text-lg font-bold">Supprimer ce document ?</h3>
+								<p class="py-4">
+									Voulez-vous vraiment supprimer
+									<span class="font-semibold">{{ doc.name }}</span> ?
+								</p>
+								<div class="modal-action">
+									<!-- Bouton annuler -->
+									<form method="dialog">
+										<button class="btn btn-ghost">Annuler</button>
+									</form>
+									<!-- Bouton supprimer -->
+									<button class="btn btn-soft btn-error" @click="removeDocument(doc.id)">
+										Supprimer
+									</button>
+								</div>
+							</div>
+						</dialog>
 					</ul>
 
 					<!-- Editeur Markdown -->
@@ -111,7 +172,7 @@ const saveToIndexedDB = async () => {
 
 						<div class="absolute bottom-3 right-3 flex flex-col gap-3">
 							<div class="tooltip tooltip-left" data-tip="Télécharger le PDF">
-								<button @click="exportToPdf" class="btn btn-lg btn-circle btn-soft">
+								<button @click="exportToPdf" class="btn btn-lg btn-circle btn-neutral">
 									<font-awesome-icon icon="fa-solid fa-download" />
 								</button>
 							</div>
@@ -136,17 +197,18 @@ const saveToIndexedDB = async () => {
 					</a>
 				</li>
 
-				<br>
-
 				<div class="divider divider-start text-grey">Documents</div>
-				<!-- <li class="menu-title text-grey">Documents</li> -->
 
-				<li class="flex flex-row h-[36px] items-center justify-between">
-					<a class="w-[86%]">
-						Document 1
+				<li v-for="doc in documents" :key="doc.id" class="flex flex-row h-[36px] items-center justify-between">
+					<a class="w-[86%] truncate">
+					{{ doc.name }}
 					</a>
-					<!-- Bouton pour dropdown d'action pour les docuements existant -->
-					<button @click.stop class="btn btn-xs btn-circle btn-ghost text-sm" popovertarget="popover-1" style="anchor-name:--anchor-1">
+					<button
+						@click.stop
+						class="btn btn-xs btn-circle btn-ghost text-sm"
+						:popovertarget="`popover-${doc.id}`"
+    					:style="`anchor-name:--anchor-${doc.id}`"
+					>
 						<font-awesome-icon icon="fa-solid fa-ellipsis" />
 					</button>
 				</li>
