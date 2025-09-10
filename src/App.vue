@@ -16,6 +16,8 @@ const markdownText = ref('');
 const documents = ref([]);
 const modalRefs = reactive({});
 const currentDoc = ref(null);
+const renamingDocId = ref(null);
+const renameInput = ref("");
 
 // HTML rendu depuis le texte Markdown
 const renderedHtml = computed(() => md.render(markdownText.value));
@@ -43,14 +45,14 @@ const closeModal = (id) => {
 
 const removeDocument = async (id) => {
 	closeModal(id);
-  await deleteDocument(id);
-  await loadDocuments(); // refresh la liste
+	await deleteDocument(id);
+	await loadDocuments(); // refresh la liste
 };
 
 // Sélectionner un document et charger son contenu
 const selectDocument = (doc) => {
-  currentDoc.value = doc;
-  markdownText.value = doc.content;
+	currentDoc.value = doc;
+	markdownText.value = doc.content;
 };
 
 // Fonction d'export PDF
@@ -90,25 +92,44 @@ const saveToIndexedDB = async () => {
 
 // Créer un nouveau document : sauvegarde l'actuel puis vide l'éditeur
 const newDocument = async () => {
-  if (markdownText.value) {
-    // Si un texte est présent, on sauvegarde ou met à jour
-    if (currentDoc.value) {
-      const updatedDoc = {
-        ...currentDoc.value,
-        content: markdownText.value,
-        updatedAt: new Date().toISOString(),
-      };
-      await updateDocument(updatedDoc);
-      currentDoc.value = updatedDoc;
-    } else {
-      const doc = await saveDocument(markdownText.value);
-      currentDoc.value = doc;
-    }
-    await loadDocuments();
-  }
-  // On vide l'éditeur et le doc courant
-  currentDoc.value = null;
-  markdownText.value = '';
+	if (markdownText.value) {
+		// Si un texte est présent, on sauvegarde ou met à jour
+		if (currentDoc.value) {
+			const updatedDoc = {
+				...currentDoc.value,
+				content: markdownText.value,
+				updatedAt: new Date().toISOString(),
+			};
+			await updateDocument(updatedDoc);
+			currentDoc.value = updatedDoc;
+		} else {
+			const doc = await saveDocument(markdownText.value);
+			currentDoc.value = doc;
+		}
+		await loadDocuments();
+	}
+	// On vide l'éditeur et le doc courant
+	currentDoc.value = null;
+	markdownText.value = '';
+};
+
+const startRenaming = (doc) => {
+	renamingDocId.value = doc.id;
+	renameInput.value = doc.name;
+};
+
+const finishRenaming = async (doc) => {
+	const newName = renameInput.value.trim();
+	if (newName && newName !== doc.name) {
+		const updatedDoc = { ...doc, name: newName, updatedAt: new Date().toISOString() };
+		await updateDocument(updatedDoc);
+		if (currentDoc.value && currentDoc.value.id === doc.id) {
+		currentDoc.value = updatedDoc;
+		}
+		await loadDocuments();
+	}
+	renamingDocId.value = null;
+	renameInput.value = "";
 };
 </script>
 
@@ -150,9 +171,9 @@ const newDocument = async () => {
 						:style="`position-anchor:--anchor-${doc.id}`"
 					>
 						<li>
-							<a>
-							<font-awesome-icon icon="fa-solid fa-pencil" />
-							Renommer
+							<a @click="startRenaming(doc)">
+								<font-awesome-icon icon="fa-solid fa-pencil" />
+								Renommer
 							</a>
 						</li>
 
@@ -240,14 +261,27 @@ const newDocument = async () => {
 				<div class="divider divider-start text-grey">Documents</div>
 
 				<li v-for="doc in documents" :key="doc.id" class="flex flex-row h-[36px] items-center justify-between">
-					<a class="w-[86%] truncate" @click="selectDocument(doc)">
-						{{ doc.name }}
-					</a>
+					<div class="w-[86%] truncate">
+						<template v-if="renamingDocId === doc.id">
+							<input
+								v-model="renameInput"
+								class="input input-sm input-bordered w-full"
+								@keyup.enter="finishRenaming(doc)"
+								@blur="finishRenaming(doc)"
+								:autofocus="true"
+							/>
+						</template>
+						<template v-else>
+							<a class="truncate block w-full" @click="selectDocument(doc)">
+								{{ doc.name }}
+							</a>
+						</template>
+					</div>
 					<button
 						@click.stop
 						class="btn btn-xs btn-circle btn-ghost text-sm"
 						:popovertarget="`popover-${doc.id}`"
-    					:style="`anchor-name:--anchor-${doc.id}`"
+						:style="`anchor-name:--anchor-${doc.id}`"
 					>
 						<font-awesome-icon icon="fa-solid fa-ellipsis" />
 					</button>
