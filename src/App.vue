@@ -43,8 +43,14 @@ const closeModal = (id) => {
 
 const removeDocument = async (id) => {
 	closeModal(id);
-  	await deleteDocument(id);
-  	await loadDocuments(); // refresh la liste
+  await deleteDocument(id);
+  await loadDocuments(); // refresh la liste
+};
+
+// Sélectionner un document et charger son contenu
+const selectDocument = (doc) => {
+  currentDoc.value = doc;
+  markdownText.value = doc.content;
 };
 
 // Fonction d'export PDF
@@ -69,7 +75,6 @@ const saveToIndexedDB = async () => {
 	// alert(`Document "${doc.name}" sauvegardé !`);
 	await loadDocuments();
 };
-
 </script>
 
 <template>
@@ -200,8 +205,8 @@ const saveToIndexedDB = async () => {
 				<div class="divider divider-start text-grey">Documents</div>
 
 				<li v-for="doc in documents" :key="doc.id" class="flex flex-row h-[36px] items-center justify-between">
-					<a class="w-[86%] truncate">
-					{{ doc.name }}
+					<a class="w-[86%] truncate" @click="selectDocument(doc)">
+						{{ doc.name }}
 					</a>
 					<button
 						@click.stop
