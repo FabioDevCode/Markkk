@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, computed, onMounted } from "vue";
+import { ref, reactive, computed, onMounted, nextTick } from "vue";
 import html2canvas from "html2canvas-pro";
 window.html2canvas = html2canvas;
 import MarkdownIt from "markdown-it";
@@ -18,6 +18,7 @@ const modalRefs = reactive({});
 const currentDoc = ref(null);
 const renamingDocId = ref(null);
 const renameInput = ref("");
+const renameInputRefs = reactive({});
 const currentTheme = ref("dim");
 
 // HTML rendu depuis le texte Markdown
@@ -129,9 +130,13 @@ const newDocument = async () => {
 	markdownText.value = '';
 };
 
-const startRenaming = (doc) => {
+const startRenaming = async (doc) => {
 	renamingDocId.value = doc.id;
 	renameInput.value = doc.name;
+	await nextTick();
+	if (renameInputRefs[doc.id]) {
+		renameInputRefs[doc.id].focus();
+	}
 };
 
 const finishRenaming = async (doc) => {
@@ -380,7 +385,7 @@ const themes = [
 								class="input input-sm input-bordered w-full"
 								@keyup.enter="finishRenaming(doc)"
 								@blur="finishRenaming(doc)"
-								:autofocus="true"
+								:ref="el => { if (el) renameInputRefs[doc.id] = el }"
 							/>
 						</template>
 						<template v-else>
