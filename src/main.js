@@ -7,8 +7,9 @@ import { far } from '@fortawesome/free-regular-svg-icons'
 import { fab } from '@fortawesome/free-brands-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-import "./assets/css/style.css"
+import 'vue3-toastify/dist/index.css';
 import "./assets/css/markdown.css"
+import "./assets/css/style.css"
 
 library.add(fas, far, fab)
 

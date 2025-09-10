@@ -1,5 +1,6 @@
 <script setup>
 import { ref, reactive, computed, onMounted, nextTick } from "vue";
+import { toast } from 'vue3-toastify';
 import html2canvas from "html2canvas-pro";
 window.html2canvas = html2canvas;
 import MarkdownIt from "markdown-it";
@@ -20,6 +21,11 @@ const renamingDocId = ref(null);
 const renameInput = ref("");
 const renameInputRefs = reactive({});
 const currentTheme = ref("dim");
+
+// toast("Hello! Wow so easy!", {
+// 	type: "success",
+// 	position: "bottom-left"
+// });
 
 // HTML rendu depuis le texte Markdown
 const renderedHtml = computed(() => md.render(markdownText.value));
@@ -125,6 +131,14 @@ const saveToIndexedDB = async () => {
 		currentDoc.value = doc;
 	}
 	await loadDocuments();
+
+	toast("Sauvegardé !", {
+		type: "success",
+		theme: "colored",
+		position: "bottom-left",
+		hideProgressBar: true,
+		autoClose: 2000,
+	})
 };
 
 // Créer un nouveau document : sauvegarde l'actuel puis vide l'éditeur
@@ -385,14 +399,14 @@ const themes = [
 			</div>
 
 			<ul class="menu p-4 w-64 min-h-full bg-base-200 text-base-content">
-				<li>
-					<a class="py-2 text-base gap-1" @click="newDocument">
+				<li @click="newDocument">
+					<a class="py-2 text-base gap-1">
 						<font-awesome-icon icon="fa-solid fa-plus" />
 						Nouveau
 					</a>
 				</li>
-				<li>
-					<a class="py-2 text-base gap-1" @click="exportData">
+				<li @click="exportData">
+					<a class="py-2 text-base gap-1">
 						<font-awesome-icon icon="fa-regular fa-file-zipper" />
 						Extraire mes données
 					</a>
@@ -401,7 +415,7 @@ const themes = [
 				<div class="divider divider-start text-base-content/30">Documents</div>
 
 				<li v-for="doc in documents" :key="doc.id" class="flex flex-row h-[36px] items-center justify-between">
-					<div class="w-[86%] truncate">
+					<div class="w-[86%] truncate" @click="selectDocument(doc)">
 						<template v-if="renamingDocId === doc.id">
 							<input
 								v-model="renameInput"
@@ -412,7 +426,7 @@ const themes = [
 							/>
 						</template>
 						<template v-else>
-							<a class="truncate block w-full" @click="selectDocument(doc)">
+							<a class="truncate block w-full">
 								{{ doc.name }}
 							</a>
 						</template>
