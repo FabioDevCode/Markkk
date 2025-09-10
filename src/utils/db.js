@@ -36,7 +36,13 @@ export const saveDocument = async (content, named = null) => {
 
 export const getDocuments = async () => {
 	const db = await initDB();
-	return db.getAll(STORE_NAME);
+	const docs = await db.getAll(STORE_NAME);
+	docs.sort((a, b) => {
+		const dateA = a.updatedAt || a.createdAt;
+		const dateB = b.updatedAt || b.createdAt;
+		return new Date(dateB) - new Date(dateA);
+	});
+	return docs;
 };
 
 // Peut inutile

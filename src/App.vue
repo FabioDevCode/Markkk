@@ -7,7 +7,7 @@ import jsPDF from "jspdf";
 import { Codemirror } from "vue-codemirror";
 import { markdown } from "@codemirror/lang-markdown";
 import { oneDark } from "@codemirror/theme-one-dark";
-import { saveDocument, getDocuments, deleteDocument, updateDocument, saveTheme, getTheme } from "@/utils/db";
+import { saveDocument, getDocuments, getDocument, deleteDocument, updateDocument, saveTheme, getTheme } from "@/utils/db";
 
 const extensions = [markdown(), oneDark];
 const md = new MarkdownIt();
@@ -55,9 +55,9 @@ const openModal = (id) => {
 
 // Fermer une modal
 const closeModal = (id) => {
+	modalRefs[id]?.close();
 	const popover = document.getElementById(`popover-${id}`);
-  	if (popover) popover.hidePopover();
-  	modalRefs[id]?.close();
+	if (popover) popover.hidePopover?.();
 };
 
 const removeDocument = async (id) => {
@@ -67,7 +67,27 @@ const removeDocument = async (id) => {
 };
 
 // Sélectionner un document et charger son contenu
-const selectDocument = (doc) => {
+const selectDocument = async (doc) => {
+	// 1. Si un document courant existe, on vérifie si le contenu a changé avant d'update
+	if (currentDoc.value) {
+		const dbDoc = await getDocument(currentDoc.value.id);
+		if (dbDoc?.content !== markdownText.value) {
+			const updatedDoc = {
+				...currentDoc.value,
+				content: markdownText.value,
+				updatedAt: new Date().toISOString(),
+			};
+			await updateDocument(updatedDoc);
+			currentDoc.value = updatedDoc;
+		}
+	} else if (markdownText.value) {
+		// 2. Sinon, si du texte existe, on sauvegarde un nouveau doc
+		const newDoc = await saveDocument(markdownText.value);
+		currentDoc.value = newDoc;
+	}
+
+	await loadDocuments();
+	// 3. Afficher le document sélectionné
 	currentDoc.value = doc;
 	markdownText.value = doc.content;
 };
@@ -164,7 +184,7 @@ const exportData = async () => {
 	const yyyy = date.getFullYear();
 	const mm = String(date.getMonth() + 1).padStart(2, '0');
 	const dd = String(date.getDate()).padStart(2, '0');
-	const fileName = `markkk_bdd_${yyyy}${mm}${dd}.json`;
+	const fileName = `Markkk_bdd_${yyyy}${mm}${dd}.json`;
 	const blob = new Blob([JSON.stringify(allDocs, null, 2)], { type: 'application/json' });
 	const url = URL.createObjectURL(blob);
 	const a = document.createElement('a');
@@ -281,7 +301,6 @@ const themes = [
 							</a>
 						</li>
 
-
 						<!-- Modal avec ref dynamique -->
 						<dialog
 							class="modal"
@@ -294,11 +313,11 @@ const themes = [
 									<span class="font-semibold">{{ doc.name }}</span> ?
 								</p>
 								<div class="modal-action">
-									<!-- Bouton annuler -->
 									<form method="dialog">
-										<button class="btn btn-ghost">Annuler</button>
+										<button class="btn btn-ghost" @click="closeModal(doc.id)">
+											Annuler
+										</button>
 									</form>
-									<!-- Bouton supprimer -->
 									<button class="btn btn-soft btn-error" @click="removeDocument(doc.id)">
 										Supprimer
 									</button>
