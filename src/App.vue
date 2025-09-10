@@ -87,6 +87,29 @@ const saveToIndexedDB = async () => {
 	}
 	await loadDocuments();
 };
+
+// Créer un nouveau document : sauvegarde l'actuel puis vide l'éditeur
+const newDocument = async () => {
+  if (markdownText.value) {
+    // Si un texte est présent, on sauvegarde ou met à jour
+    if (currentDoc.value) {
+      const updatedDoc = {
+        ...currentDoc.value,
+        content: markdownText.value,
+        updatedAt: new Date().toISOString(),
+      };
+      await updateDocument(updatedDoc);
+      currentDoc.value = updatedDoc;
+    } else {
+      const doc = await saveDocument(markdownText.value);
+      currentDoc.value = doc;
+    }
+    await loadDocuments();
+  }
+  // On vide l'éditeur et le doc courant
+  currentDoc.value = null;
+  markdownText.value = '';
+};
 </script>
 
 <template>
@@ -208,7 +231,7 @@ const saveToIndexedDB = async () => {
 
 			<ul class="menu p-4 w-64 min-h-full bg-base-200 text-base-content">
 				<li>
-					<a class="py-2 text-base gap-1">
+					<a class="py-2 text-base gap-1" @click="newDocument">
 						<font-awesome-icon icon="fa-solid fa-plus" />
 						Nouveau
 					</a>
