@@ -7,7 +7,7 @@ import jsPDF from "jspdf";
 import { Codemirror } from "vue-codemirror";
 import { markdown } from "@codemirror/lang-markdown";
 import { oneDark } from "@codemirror/theme-one-dark";
-import { saveDocument, getDocuments, deleteDocument } from "@/utils/db";
+import { saveDocument, getDocuments, deleteDocument, updateDocument } from "@/utils/db";
 
 const extensions = [markdown(), oneDark];
 const md = new MarkdownIt();
@@ -71,8 +71,20 @@ const exportToPdf = () => {
 // Sauvegarde dans IndexedDB
 const saveToIndexedDB = async () => {
 	if (!markdownText.value) return;
-	const doc = await saveDocument(markdownText.value);
-	// alert(`Document "${doc.name}" sauvegardé !`);
+	if (currentDoc.value) {
+		// Mise à jour du document existant
+		const updatedDoc = {
+			...currentDoc.value,
+			content: markdownText.value,
+			updatedAt: new Date().toISOString(),
+		};
+		await updateDocument(updatedDoc);
+		currentDoc.value = updatedDoc;
+	} else {
+		// Création d'un nouveau document
+		const doc = await saveDocument(markdownText.value);
+		currentDoc.value = doc;
+	}
 	await loadDocuments();
 };
 </script>

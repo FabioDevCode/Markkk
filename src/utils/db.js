@@ -45,3 +45,9 @@ export const deleteDocument = async (id) => {
 	const db = await initDB();
 	return db.delete(STORE_NAME, id);
 };
+
+// Met à jour un document existant
+export const updateDocument = async (doc) => {
+	const db = await initDB();
+	return db.put(STORE_NAME, doc);
+};
