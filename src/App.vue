@@ -131,6 +131,10 @@ const newDocument = async () => {
 };
 
 const startRenaming = async (doc) => {
+	// Fermer le dropdown/popover si ouvert
+	const popover = document.getElementById(`popover-${doc.id}`);
+	if (popover) popover.hidePopover?.();
+
 	renamingDocId.value = doc.id;
 	renameInput.value = doc.name;
 	await nextTick();
