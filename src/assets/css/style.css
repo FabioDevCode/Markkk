@@ -3,11 +3,6 @@
   	themes: all;
 }
 
-/* Ajout de tes variables custom */
-@theme {
-	--color-grey: #2E343C;
-}
-
 body, html {
     overscroll-behavior: none;
 }

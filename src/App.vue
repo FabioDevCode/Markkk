@@ -7,7 +7,7 @@ import jsPDF from "jspdf";
 import { Codemirror } from "vue-codemirror";
 import { markdown } from "@codemirror/lang-markdown";
 import { oneDark } from "@codemirror/theme-one-dark";
-import { saveDocument, getDocuments, deleteDocument, updateDocument } from "@/utils/db";
+import { saveDocument, getDocuments, deleteDocument, updateDocument, saveTheme, getTheme } from "@/utils/db";
 
 const extensions = [markdown(), oneDark];
 const md = new MarkdownIt();
@@ -18,13 +18,29 @@ const modalRefs = reactive({});
 const currentDoc = ref(null);
 const renamingDocId = ref(null);
 const renameInput = ref("");
+const currentTheme = ref("dim");
 
 // HTML rendu depuis le texte Markdown
 const renderedHtml = computed(() => md.render(markdownText.value));
 
-// Charger tous les documents au montage
+// Appliquer le thème à la balise html
+const applyTheme = (theme) => {
+  document.documentElement.setAttribute("data-theme", theme);
+  currentTheme.value = theme;
+};
+
+// Gestion du changement de thème
+const onThemeChange = async (event) => {
+  const theme = event.target.value;
+  applyTheme(theme);
+  await saveTheme(theme);
+};
+
+// Charger tous les documents et le thème au montage
 onMounted(async () => {
-	loadDocuments();
+  loadDocuments();
+  const savedTheme = await getTheme();
+  applyTheme(savedTheme);
 });
 
 const loadDocuments = async () => {
@@ -131,6 +147,44 @@ const finishRenaming = async (doc) => {
 	renamingDocId.value = null;
 	renameInput.value = "";
 };
+
+// Exporter toutes les données IndexedDB en JSON et les télécharger
+const exportData = async () => {
+	const allDocs = await getDocuments();
+	const date = new Date();
+	const yyyy = date.getFullYear();
+	const mm = String(date.getMonth() + 1).padStart(2, '0');
+	const dd = String(date.getDate()).padStart(2, '0');
+	const fileName = `markkk_bdd_${yyyy}${mm}${dd}.json`;
+	const blob = new Blob([JSON.stringify(allDocs, null, 2)], { type: 'application/json' });
+	const url = URL.createObjectURL(blob);
+	const a = document.createElement('a');
+	a.href = url;
+	a.download = fileName;
+	document.body.appendChild(a);
+	a.click();
+	document.body.removeChild(a);
+	URL.revokeObjectURL(url);
+};
+
+// Liste des thèmes disponibles
+const themes = [
+	"dim",
+	"light",
+	"bumblebee",
+	"emerald",
+	"corporate",
+	"lofi",
+	"winter",
+	"sunset",
+	"black",
+	"forest",
+	"synthwave",
+	"lemonade",
+	"caramellatte",
+	"valentine",
+	"aqua"
+];
 </script>
 
 <template>
@@ -146,12 +200,28 @@ const finishRenaming = async (doc) => {
 						<label for="my-drawer" class="btn btn-ghost btn-circle drawer-button lg:hidden text-base">
 							<font-awesome-icon icon="fa-solid fa-bars-staggered" />
 						</label>
+						<div class="dropdown dropdown-start">
+							<div tabindex="0" role="button" class="btn btn-ghost m-1 px-2 min-h-0 h-10 flex items-center gap-1">
+								Theme
+								<font-awesome-icon icon="fa-solid fa-angle-down" />
+							</div>
+							<ul tabindex="0" class="dropdown-content bg-base-300 rounded-box z-50 w-52 p-2 shadow-2xl absolute">
+								<li v-for="theme in themes" :key="theme">
+									<input
+										type="radio"
+										name="theme-dropdown"
+										class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+										:aria-label="theme.charAt(0).toUpperCase() + theme.slice(1)"
+										:value="theme"
+										@change="onThemeChange"
+										:checked="currentTheme === theme"
+									/>
+								</li>
+							</ul>
+						</div>
 					</div>
 				</div>
 				<div class="flex-none">
-					<!-- <ul class="menu menu-horizontal px-1">
-						<li><a></a></li>
-					</ul> -->
 					<img class="h-10 lg:hidden px-1" src="/img/Markkk.svg" alt="Markkk logo">
 					<h1 class="hidden lg:flex text-2xl px-1 font-semibold">
 						Markkk !
@@ -183,6 +253,7 @@ const finishRenaming = async (doc) => {
 								Supprimer
 							</a>
 						</li>
+
 
 						<!-- Modal avec ref dynamique -->
 						<dialog
@@ -257,8 +328,14 @@ const finishRenaming = async (doc) => {
 						Nouveau
 					</a>
 				</li>
+				<li>
+					<a class="py-2 text-base gap-1" @click="exportData">
+						<font-awesome-icon icon="fa-regular fa-file-zipper" />
+						Extraire mes données
+					</a>
+				</li>
 
-				<div class="divider divider-start text-grey">Documents</div>
+				<div class="divider divider-start text-base-content/30">Documents</div>
 
 				<li v-for="doc in documents" :key="doc.id" class="flex flex-row h-[36px] items-center justify-between">
 					<div class="w-[86%] truncate">

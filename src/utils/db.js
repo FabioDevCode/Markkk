@@ -2,7 +2,8 @@ import { openDB } from "idb";
 
 const DB_NAME = "markkk-db";
 const STORE_NAME = "documents";
-const VERSION = 1;
+const THEME_STORE = "theme";
+const VERSION = 2;
 
 export const initDB = async () => {
 	return openDB(DB_NAME, VERSION, {
@@ -10,13 +11,16 @@ export const initDB = async () => {
 			if (!db.objectStoreNames.contains(STORE_NAME)) {
 				db.createObjectStore(STORE_NAME, { keyPath: "id" });
 			}
+			if (!db.objectStoreNames.contains(THEME_STORE)) {
+				db.createObjectStore(THEME_STORE, { keyPath: "id" });
+			}
 		},
 	});
 };
 
 export const saveDocument = async (content, named = null) => {
 	const db = await initDB();
-	const id = crypto.randomUUID(); // identifiant unique
+	const id = crypto.randomUUID();
 	const name = named || "doc-" + Math.random().toString(36).substring(2, 8);
 
 	const doc = {
@@ -50,4 +54,20 @@ export const deleteDocument = async (id) => {
 export const updateDocument = async (doc) => {
 	const db = await initDB();
 	return db.put(STORE_NAME, doc);
+};
+
+// Gestion du thème
+export const saveTheme = async (theme) => {
+	const db = await initDB();
+	await db.put(THEME_STORE, { id: "selected", value: theme });
+};
+
+export const getTheme = async () => {
+	const db = await initDB();
+	const themeObj = await db.get(THEME_STORE, "selected");
+	if (!themeObj) {
+		await db.put(THEME_STORE, { id: "selected", value: "dim" });
+		return "dim";
+	}
+	return themeObj.value;
 };
