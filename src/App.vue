@@ -25,22 +25,22 @@ const renderedHtml = computed(() => md.render(markdownText.value));
 
 // Appliquer le thème à la balise html
 const applyTheme = (theme) => {
-  document.documentElement.setAttribute("data-theme", theme);
-  currentTheme.value = theme;
+	document.documentElement.setAttribute("data-theme", theme);
+	currentTheme.value = theme;
 };
 
 // Gestion du changement de thème
 const onThemeChange = async (event) => {
-  const theme = event.target.value;
-  applyTheme(theme);
-  await saveTheme(theme);
+	const theme = event.target.value;
+	applyTheme(theme);
+	await saveTheme(theme);
 };
 
 // Charger tous les documents et le thème au montage
 onMounted(async () => {
-  loadDocuments();
-  const savedTheme = await getTheme();
-  applyTheme(savedTheme);
+	loadDocuments();
+	const savedTheme = await getTheme();
+	applyTheme(savedTheme);
 });
 
 const loadDocuments = async () => {
@@ -222,7 +222,25 @@ const themes = [
 					</div>
 				</div>
 				<div class="flex-none">
-					<img class="h-10 lg:hidden px-1" src="/img/Markkk.svg" alt="Markkk logo">
+					<svg class="h-10 lg:hidden px-1 text-base-content" viewBox="0 0 251 94" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<g clip-path="url(#clip0_2023_2)">
+						<path d="M129.017 38.999L129.018 54V69L104 46.498L129.017 24V38.999ZM176.897 38.999L176.899 54V69L151.881 46.498L176.897 24V38.999ZM224.496 38.999H251.029V54H224.498V69L199.479 46.498L224.496 24V38.999Z" fill="currentColor"/>
+						<path d="M52.8789 41.0088L67.7012 23H80.8271V71H66.3506V43.1904L53.2949 59.2939H52.1514L39.0605 43.1904V71H25V23H38.126L52.8789 41.0088Z" fill="currentColor"/>
+						<path d="M122.018 8.50202L97.0013 31.0002V16.001L97 1.00047L97 -14L122.018 8.50202Z" fill="currentColor"/>
+						<path d="M170.018 8.50202L145.001 31.0002V16.001L145 1.00047L145 -14L170.018 8.50202Z" fill="currentColor"/>
+						<path d="M218.018 8.50202L193.001 31.0002V16.001L193 1.00047L193 -14L218.018 8.50202Z" fill="currentColor"/>
+						<path d="M122.018 84.502L97.0013 107V92.001L97 77.0005L97 62L122.018 84.502Z" fill="currentColor"/>
+						<path d="M170.018 84.502L145.001 107V92.001L145 77.0005L145 62L170.018 84.502Z" fill="currentColor"/>
+						<path d="M218.018 84.502L193.001 107V92.001L193 77.0005L193 62L218.018 84.502Z" fill="currentColor"/>
+						</g>
+						<rect x="5" y="5" width="241" height="84" rx="5" stroke="currentColor" stroke-width="10"/>
+						<defs>
+						<clipPath id="clip0_2023_2">
+						<rect width="251" height="94" rx="10" fill="white"/>
+						</clipPath>
+						</defs>
+					</svg>
+
 					<h1 class="hidden lg:flex text-2xl px-1 font-semibold">
 						Markkk !
 					</h1>
@@ -318,7 +336,24 @@ const themes = [
 		<div class="drawer-side">
 			<label for="my-drawer" class="drawer-overlay"></label>
             <div class="items-center justify-center pt-8 pb-4 bg-base-200 w-full hidden lg:flex">
-				<img class="h-14" src="/img/Markkk.svg" alt="Markkk logo">
+				<svg class="h-14 text-base-content" viewBox="0 0 251 94" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<g clip-path="url(#clip0_2023_2)">
+					<path d="M129.017 38.999L129.018 54V69L104 46.498L129.017 24V38.999ZM176.897 38.999L176.899 54V69L151.881 46.498L176.897 24V38.999ZM224.496 38.999H251.029V54H224.498V69L199.479 46.498L224.496 24V38.999Z" fill="currentColor"/>
+					<path d="M52.8789 41.0088L67.7012 23H80.8271V71H66.3506V43.1904L53.2949 59.2939H52.1514L39.0605 43.1904V71H25V23H38.126L52.8789 41.0088Z" fill="currentColor"/>
+					<path d="M122.018 8.50202L97.0013 31.0002V16.001L97 1.00047L97 -14L122.018 8.50202Z" fill="currentColor"/>
+					<path d="M170.018 8.50202L145.001 31.0002V16.001L145 1.00047L145 -14L170.018 8.50202Z" fill="currentColor"/>
+					<path d="M218.018 8.50202L193.001 31.0002V16.001L193 1.00047L193 -14L218.018 8.50202Z" fill="currentColor"/>
+					<path d="M122.018 84.502L97.0013 107V92.001L97 77.0005L97 62L122.018 84.502Z" fill="currentColor"/>
+					<path d="M170.018 84.502L145.001 107V92.001L145 77.0005L145 62L170.018 84.502Z" fill="currentColor"/>
+					<path d="M218.018 84.502L193.001 107V92.001L193 77.0005L193 62L218.018 84.502Z" fill="currentColor"/>
+					</g>
+					<rect x="5" y="5" width="241" height="84" rx="5" stroke="currentColor" stroke-width="10"/>
+					<defs>
+					<clipPath id="clip0_2023_2">
+					<rect width="251" height="94" rx="10" fill="white"/>
+					</clipPath>
+					</defs>
+				</svg>
 			</div>
 
 			<ul class="menu p-4 w-64 min-h-full bg-base-200 text-base-content">
