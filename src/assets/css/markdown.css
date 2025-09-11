@@ -105,7 +105,7 @@ pdf-content > *:first-child { margin-top: 0; }
 
 .pdf-content pre {
   background: var(--bg-code);
-  padding: 0.2em;
+  padding: 0.2em 0.4em;
   border: 1px solid var(--border);
   border-radius: 6px;
   overflow: auto;
