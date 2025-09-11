@@ -15,18 +15,12 @@ const md = new MarkdownIt();
 
 const markdownText = ref('');
 const currentDoc = ref(null);
-
 const documents = ref([]);
 const modalRefs = reactive({});
 const renamingDocId = ref(null);
 const renameInput = ref("");
 const renameInputRefs = reactive({});
 const currentTheme = ref("dim");
-
-// toast("Hello! Wow so easy!", {
-// 	type: "success",
-// 	position: "bottom-left"
-// });
 
 // HTML rendu depuis le texte Markdown
 const renderedHtml = computed(() => md.render(markdownText.value));
@@ -258,7 +252,6 @@ const themes = [
 <template>
 	<div class="drawer lg:drawer-open">
 		<input id="my-drawer" type="checkbox" class="drawer-toggle" checked />
-
 		<!-- Zone principale -->
 		<div class="drawer-content flex flex-col">
 			<!-- NAVBAR -->
@@ -371,7 +364,7 @@ const themes = [
 							v-model="markdownText"
 							:extensions="extensions"
 							placeholder="Écris ton Markdown ici..."
-							style="height: 100%; font-size: 14px;"
+							style="height: 100%; font-size: 14px; width: auto; overflow: hidden;"
 						/>
 
 						<div class="absolute bottom-3 right-3 flex flex-col gap-3">
@@ -395,12 +388,13 @@ const themes = [
 							</div>
 						</div>
 					</div>
+
 				</div>
 			</div>
 		</div>
 
 		<!-- Sidebar -->
-		<div class="drawer-side">
+		<div class="drawer-side bg-base-200">
 			<label for="my-drawer" class="drawer-overlay"></label>
             <div class="items-center justify-center pt-8 pb-4 bg-base-200 w-full hidden lg:flex">
 				<svg class="h-14 text-base-content" viewBox="0 0 251 94" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -423,7 +417,7 @@ const themes = [
 				</svg>
 			</div>
 
-			<ul class="menu p-4 w-64 min-h-full bg-base-200 text-base-content">
+			<ul class="menu p-4 w-64 bg-base-200 text-base-content">
 				<li @click="newDocument">
 					<a class="py-2 text-base gap-1">
 						<font-awesome-icon icon="fa-solid fa-plus" />

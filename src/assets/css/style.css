@@ -44,6 +44,12 @@ body, html {
 	height: calc(100vh - 64px);
 }
 
+.editor-preview .preview,
+.editor-preview .editor {
+	width: 50%;
+	max-width: 50%;
+}
+
 .editor,
 .preview {
 	flex: 1;
