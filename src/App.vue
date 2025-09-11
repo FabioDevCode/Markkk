@@ -106,16 +106,36 @@ const selectDocument = async (doc) => {
 // Fonction d'export PDF
 const exportToPdf = () => {
 	if (!markdownText.value) return;
-	const doc = new jsPDF("p", "pt", "a4");
-	doc.html(renderedHtml.value, {
-		callback: function (doc) {
-			doc.save("Markkk-export.pdf");
-		},
-		x: 20,
-		y: 20,
-		width: 550,
-		windowWidth: 800
-	});
+
+	const preview = document.querySelector('.pdf-content');
+	if (!preview) return;
+
+	fetch('/markdown.css')
+		.then(res => res.text())
+		.then(css => {
+			const clone = preview.cloneNode(true);
+			const style = document.createElement('style');
+			style.textContent = css;
+			clone.prepend(style);
+
+			const container = document.createElement('div');
+			container.style.position = 'fixed';
+			container.style.left = '-99999px';
+			container.appendChild(clone);
+			document.body.appendChild(container);
+
+			const doc = new jsPDF("p", "pt", "a4");
+			doc.html(clone, {
+				callback: function (doc) {
+					document.body.removeChild(container);
+					doc.save("Markkk-export.pdf");
+				},
+				x: 20,
+				y: 20,
+				width: 550,
+				windowWidth: 800
+			});
+		});
 };
 
 // Sauvegarde dans IndexedDB

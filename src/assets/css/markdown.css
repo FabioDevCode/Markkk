@@ -18,9 +18,9 @@
 	word-wrap: break-word;
 	overflow-wrap: anywhere;
 
-	border: 1px solid #ddd;
+	border: 0px;
 	padding: 10px;
-	background: #fafafa;
+	background: #ffffff;
 	flex: 1;
 	overflow-y: auto;
 }
@@ -46,7 +46,7 @@ pdf-content > *:first-child { margin-top: 0; }
 .pdf-content h5,
 .pdf-content h6 {
   line-height: 1.25;
-  margin: 0.4em 0 0.5em;
+  margin: 0 0 0.5em;
   font-weight: 700;
 }
 .pdf-content h1 { font-size: 1.9em; }
@@ -105,7 +105,7 @@ pdf-content > *:first-child { margin-top: 0; }
 
 .pdf-content pre {
   background: var(--bg-code);
-  padding: 0.9em 1.1em;
+  padding: 0.2em;
   border: 1px solid var(--border);
   border-radius: 6px;
   overflow: auto;
