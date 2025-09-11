@@ -14,9 +14,10 @@ const extensions = [markdown(), oneDark];
 const md = new MarkdownIt();
 
 const markdownText = ref('');
+const currentDoc = ref(null);
+
 const documents = ref([]);
 const modalRefs = reactive({});
-const currentDoc = ref(null);
 const renamingDocId = ref(null);
 const renameInput = ref("");
 const renameInputRefs = reactive({});
@@ -69,7 +70,11 @@ const closeModal = (id) => {
 const removeDocument = async (id) => {
 	closeModal(id);
 	await deleteDocument(id);
-	await loadDocuments(); // refresh la liste
+	if (currentDoc?.value?.id === id) {
+		currentDoc.value = null;
+		markdownText.value = '';
+	}
+	await loadDocuments();
 };
 
 // Sélectionner un document et charger son contenu
