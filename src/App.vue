@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, computed, onMounted, nextTick } from "vue";
+import { ref, reactive, computed, onMounted, nextTick, onUnmounted } from "vue";
 import { toast } from 'vue3-toastify';
 import html2canvas from "html2canvas-pro";
 window.html2canvas = html2canvas;
@@ -43,6 +43,31 @@ onMounted(async () => {
 	loadDocuments();
 	const savedTheme = await getTheme();
 	applyTheme(savedTheme);
+
+	// Ajout des raccourcis clavier
+	const saveShortcut = (e) => {
+		// Ctrl+S / Cmd+S
+		if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+			e.preventDefault();
+			saveToIndexedDB();
+		}
+		// Ctrl+P / Cmd+P
+		if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
+			e.preventDefault();
+			exportToPdf();
+		}
+		// Ctrl+D / Cmd+D
+		if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd') {
+			e.preventDefault();
+			newDocument();
+		}
+	};
+
+	window.addEventListener('keydown', saveShortcut);
+
+	onUnmounted(() => {
+		window.removeEventListener('keydown', saveShortcut);
+	});
 });
 
 const loadDocuments = async () => {
@@ -419,15 +444,22 @@ const themes = [
 
 			<ul class="menu p-4 w-64 bg-base-200 text-base-content">
 				<li @click="newDocument">
-					<a class="py-2 text-base gap-1">
+					<a class="gap-2">
 						<font-awesome-icon icon="fa-solid fa-plus" />
 						Nouveau
 					</a>
 				</li>
 				<li @click="exportData">
-					<a class="py-2 text-base gap-1">
+					<a class="gap-2">
 						<font-awesome-icon icon="fa-regular fa-file-zipper" />
 						Extraire mes données
+					</a>
+				</li>
+				<li>
+					<a class="gap-2">
+						<!-- <font-awesome-icon icon="fa-solid fa-gear" /> -->
+						<font-awesome-icon icon="fa-solid fa-screwdriver-wrench" />
+						Paramètres
 					</a>
 				</li>
 
