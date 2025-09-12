@@ -11,7 +11,11 @@ import { oneDark } from "@codemirror/theme-one-dark";
 import { saveDocument, getDocuments, getDocument, deleteDocument, updateDocument, saveTheme, getTheme } from "@/utils/db";
 
 const extensions = [markdown(), oneDark];
-const md = new MarkdownIt();
+const md = new MarkdownIt({
+	html: true,
+  	linkify: true,
+  	typographer: true
+});
 
 const markdownText = ref('');
 const currentDoc = ref(null);
