@@ -8,7 +8,15 @@ import jsPDF from "jspdf";
 import { Codemirror } from "vue-codemirror";
 import { markdown } from "@codemirror/lang-markdown";
 import { oneDark } from "@codemirror/theme-one-dark";
-import { saveDocument, getDocuments, getDocument, deleteDocument, updateDocument, saveTheme, getTheme } from "@/utils/db";
+import {
+	saveDocument,
+	getDocuments,
+	getDocument,
+	deleteDocument,
+	updateDocument,
+	saveTheme,
+	getTheme
+} from "@/utils/db";
 
 const extensions = [markdown(), oneDark];
 const md = new MarkdownIt({
@@ -102,8 +110,8 @@ const removeDocument = async (id) => {
 
 // Sélectionner un document et charger son contenu
 const selectDocument = async (doc) => {
-	// 1. Si un document courant existe, on vérifie si le contenu a changé avant d'update
 	if (currentDoc.value) {
+		// 1. Si un document courant existe, on vérifie si le contenu a changé avant d'update
 		const dbDoc = await getDocument(currentDoc.value.id);
 		if (dbDoc?.content !== markdownText.value) {
 			const updatedDoc = {
@@ -369,9 +377,11 @@ const themes = [
 						>
 							<div class="modal-box">
 								<h3 class="text-lg font-bold">Supprimer ce document ?</h3>
-								<p class="py-4">
-									Voulez-vous vraiment supprimer
-									<span class="font-semibold">{{ doc.name }}</span> ?
+								<p class="pt-6">
+									Cette action entraînera la suppression du document
+									<span class="font-semibold">{{ doc.name }}</span>.
+									<br>
+									<sub>Une suppression est définitive.</sub>
 								</p>
 								<div class="modal-action">
 									<form method="dialog">
