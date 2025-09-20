@@ -9,9 +9,16 @@ import { Codemirror } from "vue-codemirror";
 import { markdown } from "@codemirror/lang-markdown";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { saveDocument, getDocuments, getDocument, deleteDocument, updateDocument, saveTheme, getTheme } from "@/utils/db";
+// import markdownStyles from "@/assets/css/markdown.css?raw";
+import markdownStyles from "@/assets/css/pdf.css?raw";
+
 
 const extensions = [markdown(), oneDark];
-const md = new MarkdownIt();
+const md = new MarkdownIt({
+	html: true,
+  	linkify: true,
+  	typographer: true
+});
 
 const markdownText = ref('');
 const currentDoc = ref(null);
@@ -27,231 +34,266 @@ const renderedHtml = computed(() => md.render(markdownText.value));
 
 // Appliquer le thème à la balise html
 const applyTheme = (theme) => {
-document.documentElement.setAttribute("data-theme", theme);
-currentTheme.value = theme;
+	document.documentElement.setAttribute("data-theme", theme);
+	currentTheme.value = theme;
 };
 
 // Gestion du changement de thème
 const onThemeChange = async (event) => {
-const theme = event.target.value;
-applyTheme(theme);
-await saveTheme(theme);
+	const theme = event.target.value;
+	applyTheme(theme);
+	await saveTheme(theme);
 };
 
-// Charger tous les documents et le thème au montage
-onMounted(async () => {
-loadDocuments();
-const savedTheme = await getTheme();
-applyTheme(savedTheme);
 
 // Ajout des raccourcis clavier
 const saveShortcut = (e) => {
-    // Ctrl+S / Cmd+S
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
-        e.preventDefault();
-        saveToIndexedDB();
-    }
-    // Ctrl+P / Cmd+P
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
-        e.preventDefault();
-        exportToPdf();
-    }
-    // Ctrl+D / Cmd+D
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd') {
-        e.preventDefault();
-        newDocument();
-    }
+	// Ctrl+S / Cmd+S
+	if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+		e.preventDefault();
+		saveToIndexedDB();
+	}
+	// Ctrl+P / Cmd+P
+	if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
+		e.preventDefault();
+		exportToPdf();
+	}
+	// Ctrl+D / Cmd+D
+	if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd') {
+		e.preventDefault();
+		newDocument();
+	}
 };
 
-window.addEventListener('keydown', saveShortcut);
+onMounted(async () => {
+	loadDocuments();
+	const savedTheme = await getTheme();
+	applyTheme(savedTheme);
+	window.addEventListener('keydown', saveShortcut);
+});
 
 onUnmounted(() => {
-    window.removeEventListener('keydown', saveShortcut);
-});
+	window.removeEventListener('keydown', saveShortcut);
 });
 
 const loadDocuments = async () => {
-documents.value = await getDocuments();
+	documents.value = await getDocuments();
 };
 
 // Ouvrir une modal
 const openModal = (id) => {
-modalRefs[id]?.showModal();
+	modalRefs[id]?.showModal();
 };
 
 // Fermer une modal
 const closeModal = (id) => {
-modalRefs[id]?.close();
-const popover = document.getElementById(`popover-${id}`);
-if (popover) popover.hidePopover?.();
+	modalRefs[id]?.close();
+	const popover = document.getElementById(`popover-${id}`);
+	if (popover) popover.hidePopover?.();
 };
 
 const removeDocument = async (id) => {
-closeModal(id);
-await deleteDocument(id);
-if (currentDoc?.value?.id === id) {
-    currentDoc.value = null;
-    markdownText.value = '';
-}
-await loadDocuments();
+	closeModal(id);
+	await deleteDocument(id);
+	if (currentDoc?.value?.id === id) {
+		currentDoc.value = null;
+		markdownText.value = '';
+	}
+	await loadDocuments();
 };
 
-// Sélectionner un document et charger son contenu
 const selectDocument = async (doc) => {
-// 1. Si un document courant existe, on vérifie si le contenu a changé avant d'update
-if (currentDoc.value) {
-    const dbDoc = await getDocument(currentDoc.value.id);
-    if (dbDoc?.content !== markdownText.value) {
-        const updatedDoc = {
-            ...currentDoc.value,
-            content: markdownText.value,
-            updatedAt: new Date().toISOString(),
-        };
-        await updateDocument(updatedDoc);
-        currentDoc.value = updatedDoc;
-    }
-} else if (markdownText.value) {
-    // 2. Sinon, si du texte existe, on sauvegarde un nouveau doc
-    const newDoc = await saveDocument(markdownText.value);
-    currentDoc.value = newDoc;
-}
+	// 1. Si un document courant existe, on vérifie si le contenu a changé avant d'update
+	if (currentDoc.value) {
+		const dbDoc = await getDocument(currentDoc.value.id);
+		if (dbDoc?.content !== markdownText.value) {
+			const updatedDoc = {
+				...currentDoc.value,
+				content: markdownText.value,
+				updatedAt: new Date().toISOString(),
+			};
+			await updateDocument(updatedDoc);
+			currentDoc.value = updatedDoc;
+		}
+	} else if (markdownText.value) {
+		// 2. Sinon, si du texte existe, on sauvegarde un nouveau doc
+		const newDoc = await saveDocument(markdownText.value);
+		currentDoc.value = newDoc;
+	}
 
-await loadDocuments();
-// 3. Afficher le document sélectionné
-currentDoc.value = doc;
-markdownText.value = doc.content;
+	await loadDocuments();
+	// 3. Afficher le document sélectionné
+	currentDoc.value = doc;
+	markdownText.value = doc.content;
 };
 
-// Fonction d'export PDF
+// // Fonction d'export PDF
+// const exportToPdf = () => {
+// 	if (!markdownText.value) return;
+
+// 	const preview = document.querySelector('.pdf-content');
+// 	if (!preview) return;
+
+// 	fetch('/pdf.css')
+// 		.then(res => res.text())
+// 		.then(css => {
+// 			const clone = preview.cloneNode(true);
+// 			const style = document.createElement('style');
+// 			style.textContent = css;
+// 			clone.prepend(style);
+
+// 			const container = document.createElement('div');
+// 			container.style.position = 'fixed';
+// 			container.style.left = '-99999px';
+// 			container.appendChild(clone);
+// 			document.body.appendChild(container);
+
+// 			const doc = new jsPDF("p", "pt", "a4");
+// 			doc.html(clone, {
+// 				callback: function (doc) {
+// 					document.body.removeChild(container);
+// 					doc.save("Markkk-export.pdf");
+// 				},
+// 				x: 20,
+// 				y: 20,
+// 				width: 550,
+// 				windowWidth: 800,
+// 				margin: [20, 20, 40, 20]
+// 			});
+//     });
+// };
+
 const exportToPdf = () => {
-if (!markdownText.value) return;
+	if (!markdownText.value) return;
 
-const preview = document.querySelector('.pdf-content');
-if (!preview) return;
+	const preview = document.querySelector(".pdf-content");
+	if (!preview) return;
 
-fetch('/markdown.css')
-    .then(res => res.text())
-    .then(css => {
-        const clone = preview.cloneNode(true);
-        const style = document.createElement('style');
-        style.textContent = css;
-        clone.prepend(style);
+	const clone = preview.cloneNode(true);
 
-        const container = document.createElement('div');
-        container.style.position = 'fixed';
-        container.style.left = '-99999px';
-        container.appendChild(clone);
-        document.body.appendChild(container);
+	// Injecter le CSS importé
+	const style = document.createElement("style");
+	style.textContent = markdownStyles;
+	clone.prepend(style);
 
-        const doc = new jsPDF("p", "pt", "a4");
-        doc.html(clone, {
-            callback: function (doc) {
-                document.body.removeChild(container);
-                doc.save("Markkk-export.pdf");
-            },
-            x: 20,
-            y: 20,
-            width: 550,
-            windowWidth: 800
-        });
-    });
+	const container = document.createElement("div");
+	container.style.position = "fixed";
+	container.style.left = "-99999px";
+	container.appendChild(clone);
+	document.body.appendChild(container);
+
+	const doc = new jsPDF("p", "pt", "a4");
+	doc.html(clone, {
+		callback: function (doc) {
+		document.body.removeChild(container);
+		doc.save("Markkk-export.pdf");
+		},
+		x: 20,
+		y: 20,
+		width: 550,
+		windowWidth: 800,
+		margin: [40, 20, 40, 20],
+	});
 };
 
 // Sauvegarde dans IndexedDB
 const saveToIndexedDB = async () => {
-if (!markdownText.value) return;
-if (currentDoc.value) {
-    // Mise à jour du document existant
-    const updatedDoc = {
-        ...currentDoc.value,
-        content: markdownText.value,
-        updatedAt: new Date().toISOString(),
-    };
-    await updateDocument(updatedDoc);
-    currentDoc.value = updatedDoc;
-} else {
-    // Création d'un nouveau document
-    const doc = await saveDocument(markdownText.value);
-    currentDoc.value = doc;
-}
-await loadDocuments();
+	console.log("saveToIndexedDB tic");
+	if (!markdownText.value) return;
 
-toast("Sauvegardé !", {
-    type: "success",
-    theme: "colored",
-    position: "bottom-left",
-    hideProgressBar: true,
-    autoClose: 2000,
-})
+	if (currentDoc.value) {
+		// Mise à jour du document existant
+		const updatedDoc = {
+			...currentDoc.value,
+			content: markdownText.value,
+			updatedAt: new Date().toISOString(),
+		};
+		await updateDocument(updatedDoc);
+		currentDoc.value = updatedDoc;
+	} else {
+		// Création d'un nouveau document
+		const doc = await saveDocument(markdownText.value);
+		currentDoc.value = doc;
+	}
+
+	await loadDocuments();
+
+	toast("Sauvegardé !", {
+		type: "success",
+		theme: "colored",
+		position: "bottom-left",
+		hideProgressBar: true,
+		autoClose: 2000,
+	});
 };
 
 // Créer un nouveau document : sauvegarde l'actuel puis vide l'éditeur
 const newDocument = async () => {
-if (markdownText.value) {
-    // Si un texte est présent, on sauvegarde ou met à jour
-    if (currentDoc.value) {
-        const updatedDoc = {
-            ...currentDoc.value,
-            content: markdownText.value,
-            updatedAt: new Date().toISOString(),
-        };
-        await updateDocument(updatedDoc);
-        currentDoc.value = updatedDoc;
-    } else {
-        const doc = await saveDocument(markdownText.value);
-        currentDoc.value = doc;
-    }
-    await loadDocuments();
-}
-// On vide l'éditeur et le doc courant
-currentDoc.value = null;
-markdownText.value = '';
+	if (markdownText.value) {
+		// Si un texte est présent, on sauvegarde ou met à jour
+		if (currentDoc.value) {
+			const updatedDoc = {
+				...currentDoc.value,
+				content: markdownText.value,
+				updatedAt: new Date().toISOString(),
+			};
+			await updateDocument(updatedDoc);
+			currentDoc.value = updatedDoc;
+		} else {
+			const doc = await saveDocument(markdownText.value);
+			currentDoc.value = doc;
+		}
+		await loadDocuments();
+	}
+	// On vide l'éditeur et le doc courant
+	currentDoc.value = null;
+	markdownText.value = '';
 };
 
 const startRenaming = async (doc) => {
-// Fermer le dropdown/popover si ouvert
-const popover = document.getElementById(`popover-${doc.id}`);
-if (popover) popover.hidePopover?.();
+	// Fermer le dropdown/popover si ouvert
+	const popover = document.getElementById(`popover-${doc.id}`);
+	if (popover) popover.hidePopover?.();
 
-renamingDocId.value = doc.id;
-renameInput.value = doc.name;
-await nextTick();
-if (renameInputRefs[doc.id]) {
-    renameInputRefs[doc.id].focus();
-}
+	renamingDocId.value = doc.id;
+	renameInput.value = doc.name;
+	await nextTick();
+	if (renameInputRefs[doc.id]) {
+		renameInputRefs[doc.id].focus();
+	}
 };
 
 const finishRenaming = async (doc) => {
-const newName = renameInput.value.trim();
-if (newName && newName !== doc.name) {
-    const updatedDoc = { ...doc, name: newName, updatedAt: new Date().toISOString() };
-    await updateDocument(updatedDoc);
-    if (currentDoc.value && currentDoc.value.id === doc.id) {
-    currentDoc.value = updatedDoc;
-    }
-    await loadDocuments();
-}
-renamingDocId.value = null;
-renameInput.value = "";
+	const newName = renameInput.value.trim();
+	if (newName && newName !== doc.name) {
+		const updatedDoc = { ...doc, name: newName, updatedAt: new Date().toISOString() };
+		await updateDocument(updatedDoc);
+		if (currentDoc.value && currentDoc.value.id === doc.id) {
+		currentDoc.value = updatedDoc;
+		}
+		await loadDocuments();
+	}
+	renamingDocId.value = null;
+	renameInput.value = "";
 };
 
-// Exporter toutes les données IndexedDB en JSON et les télécharger
+	// Exporter toutes les données IndexedDB en JSON et les télécharger
 const exportData = async () => {
-const allDocs = await getDocuments();
-const date = new Date();
-const yyyy = date.getFullYear();
-const mm = String(date.getMonth() + 1).padStart(2, '0');
-const dd = String(date.getDate()).padStart(2, '0');
-const fileName = `Markkk_bdd_${yyyy}${mm}${dd}.json`;
-const blob = new Blob([JSON.stringify(allDocs, null, 2)], { type: 'application/json' });
-const url = URL.createObjectURL(blob);
-const a = document.createElement('a');
-a.href = url;
-a.download = fileName;
-document.body.appendChild(a);
-a.click();
-document.body.removeChild(a);
-URL.revokeObjectURL(url);
+	const allDocs = await getDocuments();
+	const date = new Date();
+	const yyyy = date.getFullYear();
+	const mm = String(date.getMonth() + 1).padStart(2, '0');
+	const dd = String(date.getDate()).padStart(2, '0');
+	const fileName = `Markkk_bdd_${yyyy}${mm}${dd}.json`;
+	const blob = new Blob([JSON.stringify(allDocs, null, 2)], { type: 'application/json' });
+	const url = URL.createObjectURL(blob);
+	const a = document.createElement('a');
+	a.href = url;
+	a.download = fileName;
+	document.body.appendChild(a);
+	a.click();
+	document.body.removeChild(a);
+	URL.revokeObjectURL(url);
 };
 
 // Liste des thèmes disponibles
@@ -276,7 +318,7 @@ const themes = [
 
 <template>
 	<div class="drawer lg:drawer-open">
-		<input id="my-drawer" type="checkbox" class="drawer-toggle" checked />
+		<input id="my-drawer" type="checkbox" class="drawer-toggle" />
 		<!-- Zone principale -->
 		<div class="drawer-content flex flex-col">
 			<!-- NAVBAR -->
@@ -419,30 +461,30 @@ const themes = [
 		</div>
 
 		<!-- Sidebar -->
-		<div class="drawer-side bg-base-200">
+		<div class="drawer-side">
 			<label for="my-drawer" class="drawer-overlay"></label>
-            <div class="items-center justify-center pt-8 pb-4 bg-base-200 w-full hidden lg:flex">
-				<svg class="h-14 text-base-content" viewBox="0 0 251 94" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<g clip-path="url(#clip0_2023_2)">
-					<path d="M129.017 38.999L129.018 54V69L104 46.498L129.017 24V38.999ZM176.897 38.999L176.899 54V69L151.881 46.498L176.897 24V38.999ZM224.496 38.999H251.029V54H224.498V69L199.479 46.498L224.496 24V38.999Z" fill="currentColor"/>
-					<path d="M52.8789 41.0088L67.7012 23H80.8271V71H66.3506V43.1904L53.2949 59.2939H52.1514L39.0605 43.1904V71H25V23H38.126L52.8789 41.0088Z" fill="currentColor"/>
-					<path d="M122.018 8.50202L97.0013 31.0002V16.001L97 1.00047L97 -14L122.018 8.50202Z" fill="currentColor"/>
-					<path d="M170.018 8.50202L145.001 31.0002V16.001L145 1.00047L145 -14L170.018 8.50202Z" fill="currentColor"/>
-					<path d="M218.018 8.50202L193.001 31.0002V16.001L193 1.00047L193 -14L218.018 8.50202Z" fill="currentColor"/>
-					<path d="M122.018 84.502L97.0013 107V92.001L97 77.0005L97 62L122.018 84.502Z" fill="currentColor"/>
-					<path d="M170.018 84.502L145.001 107V92.001L145 77.0005L145 62L170.018 84.502Z" fill="currentColor"/>
-					<path d="M218.018 84.502L193.001 107V92.001L193 77.0005L193 62L218.018 84.502Z" fill="currentColor"/>
-					</g>
-					<rect x="5" y="5" width="241" height="84" rx="5" stroke="currentColor" stroke-width="10"/>
-					<defs>
-					<clipPath id="clip0_2023_2">
-					<rect width="251" height="94" rx="10" fill="white"/>
-					</clipPath>
-					</defs>
-				</svg>
-			</div>
+			<ul class="menu p-4 w-64 bg-base-200 text-base-content min-h-screen">
+				<div class="items-center justify-center pt-4 pb-6 bg-base-200 w-full hidden lg:flex">
+					<svg class="h-14 text-base-content" viewBox="0 0 251 94" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<g clip-path="url(#clip0_2023_2)">
+						<path d="M129.017 38.999L129.018 54V69L104 46.498L129.017 24V38.999ZM176.897 38.999L176.899 54V69L151.881 46.498L176.897 24V38.999ZM224.496 38.999H251.029V54H224.498V69L199.479 46.498L224.496 24V38.999Z" fill="currentColor"/>
+						<path d="M52.8789 41.0088L67.7012 23H80.8271V71H66.3506V43.1904L53.2949 59.2939H52.1514L39.0605 43.1904V71H25V23H38.126L52.8789 41.0088Z" fill="currentColor"/>
+						<path d="M122.018 8.50202L97.0013 31.0002V16.001L97 1.00047L97 -14L122.018 8.50202Z" fill="currentColor"/>
+						<path d="M170.018 8.50202L145.001 31.0002V16.001L145 1.00047L145 -14L170.018 8.50202Z" fill="currentColor"/>
+						<path d="M218.018 8.50202L193.001 31.0002V16.001L193 1.00047L193 -14L218.018 8.50202Z" fill="currentColor"/>
+						<path d="M122.018 84.502L97.0013 107V92.001L97 77.0005L97 62L122.018 84.502Z" fill="currentColor"/>
+						<path d="M170.018 84.502L145.001 107V92.001L145 77.0005L145 62L170.018 84.502Z" fill="currentColor"/>
+						<path d="M218.018 84.502L193.001 107V92.001L193 77.0005L193 62L218.018 84.502Z" fill="currentColor"/>
+						</g>
+						<rect x="5" y="5" width="241" height="84" rx="5" stroke="currentColor" stroke-width="10"/>
+						<defs>
+						<clipPath id="clip0_2023_2">
+						<rect width="251" height="94" rx="10" fill="white"/>
+						</clipPath>
+						</defs>
+					</svg>
+				</div>
 
-			<ul class="menu p-4 w-64 bg-base-200 text-base-content">
 				<li @click="newDocument">
 					<a class="gap-2">
 						<font-awesome-icon icon="fa-solid fa-plus" />
@@ -491,7 +533,6 @@ const themes = [
 						<font-awesome-icon icon="fa-solid fa-ellipsis" />
 					</button>
 				</li>
-
 			</ul>
 		</div>
 	</div>
