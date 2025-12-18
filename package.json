@@ -26,7 +26,6 @@
 		"daisyui": "^5.1.6",
 		"html2canvas-pro": "^1.5.11",
 		"idb": "^8.0.3",
-		"jspdf": "^3.0.2",
 		"markdown-it": "^14.1.0",
 		"pinia": "^3.0.3",
 		"tailwindcss": "^4.1.12",

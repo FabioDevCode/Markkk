@@ -4,7 +4,6 @@ import { toast } from 'vue3-toastify';
 import html2canvas from "html2canvas-pro";
 window.html2canvas = html2canvas;
 import MarkdownIt from "markdown-it";
-import jsPDF from "jspdf";
 import { Codemirror } from "vue-codemirror";
 import { markdown } from "@codemirror/lang-markdown";
 import { oneDark } from "@codemirror/theme-one-dark";
@@ -44,7 +43,6 @@ const onThemeChange = async (event) => {
 	applyTheme(theme);
 	await saveTheme(theme);
 };
-
 
 // Ajout des raccourcis clavier
 const saveShortcut = (e) => {
@@ -127,73 +125,56 @@ const selectDocument = async (doc) => {
 	markdownText.value = doc.content;
 };
 
-// // Fonction d'export PDF
-// const exportToPdf = () => {
-// 	if (!markdownText.value) return;
-
-// 	const preview = document.querySelector('.pdf-content');
-// 	if (!preview) return;
-
-// 	fetch('/pdf.css')
-// 		.then(res => res.text())
-// 		.then(css => {
-// 			const clone = preview.cloneNode(true);
-// 			const style = document.createElement('style');
-// 			style.textContent = css;
-// 			clone.prepend(style);
-
-// 			const container = document.createElement('div');
-// 			container.style.position = 'fixed';
-// 			container.style.left = '-99999px';
-// 			container.appendChild(clone);
-// 			document.body.appendChild(container);
-
-// 			const doc = new jsPDF("p", "pt", "a4");
-// 			doc.html(clone, {
-// 				callback: function (doc) {
-// 					document.body.removeChild(container);
-// 					doc.save("Markkk-export.pdf");
-// 				},
-// 				x: 20,
-// 				y: 20,
-// 				width: 550,
-// 				windowWidth: 800,
-// 				margin: [20, 20, 40, 20]
-// 			});
-//     });
-// };
-
-const exportToPdf = () => {
+const printBrowser = () => {
 	if (!markdownText.value) return;
 
-	const preview = document.querySelector(".pdf-content");
-	if (!preview) return;
+	// Créer une iframe invisible
+	const iframe = document.createElement('iframe');
+	iframe.style.position = 'absolute';
+	iframe.style.width = '0px';
+	iframe.style.height = '0px';
+	iframe.style.border = 'none';
+	document.body.appendChild(iframe);
 
-	const clone = preview.cloneNode(true);
+	const doc = iframe.contentWindow.document;
 
-	// Injecter le CSS importé
-	const style = document.createElement("style");
-	style.textContent = markdownStyles;
-	clone.prepend(style);
+	// Écrire le contenu HTML de base
+	doc.open();
+	doc.write(`
+		<html>
+		<head>
+			<title>${currentDoc.value?.name || 'Document sans titre'}</title>
+			<style>
+				${markdownStyles}
+				@media print {
+					@page {
+						size: A4 portrait;
+					}
+					body {
+						-webkit-print-color-adjust: exact;
+					}
+				}
+			</style>
+		</head>
+		<body>
+			<div class="pdf-content">
+				${renderedHtml.value}
+			</div>
+		</body>
+		</html>
+	`);
+	doc.close();
 
-	const container = document.createElement("div");
-	container.style.position = "fixed";
-	container.style.left = "-99999px";
-	container.appendChild(clone);
-	document.body.appendChild(container);
-
-	const doc = new jsPDF("p", "pt", "a4");
-	doc.html(clone, {
-		callback: function (doc) {
-		document.body.removeChild(container);
-		doc.save("Markkk-export.pdf");
-		},
-		x: 20,
-		y: 20,
-		width: 550,
-		windowWidth: 800,
-		margin: [40, 20, 40, 20],
-	});
+	// Attendre que le contenu soit chargé et les styles appliqués
+	iframe.contentWindow.focus();
+	setTimeout(() => {
+		iframe.contentWindow.print();
+		// Supprimer l'iframe après impression (ou annulation)
+		// On met un délai suffisant pour que l'impression se lance
+		setTimeout(() => {
+			document.body.removeChild(iframe);
+		}, 1000);
+	}, 100);
 };
 
 // Sauvegarde dans IndexedDB
@@ -449,7 +430,7 @@ const themes = [
 
 						<div class="absolute bottom-3 right-3 flex flex-col gap-3">
 							<div class="tooltip tooltip-left" data-tip="Télécharger le PDF">
-								<button @click="exportToPdf" class="btn btn-lg btn-circle btn-neutral">
+								<button @click="printBrowser" class="btn btn-lg btn-circle btn-neutral">
 									<font-awesome-icon icon="fa-solid fa-download" />
 								</button>
 							</div>
