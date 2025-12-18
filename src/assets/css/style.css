@@ -1,14 +1,15 @@
 @import "tailwindcss";
+
 @plugin "daisyui" {
-  	themes: all;
+	themes: all;
 }
 
 :root {
 	--toastify-toast-width: 224px;
 	--toastify-color-info: var(--color-info);
-  	--toastify-color-success: var(--color-success);
-  	--toastify-color-warning: var(--color-warning);
-  	--toastify-color-error: var(--color-error);
+	--toastify-color-success: var(--color-success);
+	--toastify-color-warning: var(--color-warning);
+	--toastify-color-error: var(--color-error);
 
 	--toastify-text-color-info: var(--color-info-content);
 	--toastify-text-color-success: var(--color-success-content);
@@ -29,8 +30,9 @@
 	margin-bottom: 0px !important;
 }
 
-body, html {
-    overscroll-behavior: none;
+body,
+html {
+	overscroll-behavior: none;
 }
 
 ::-webkit-scrollbar {
@@ -48,18 +50,9 @@ body, html {
 	height: calc(100vh - 64px);
 }
 
-.editor-preview .preview,
-.editor-preview .editor {
-	width: 50%;
-	max-width: 50%;
-}
 
-.editor,
-.preview {
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-}
+
+
 
 .modal {
 	display: flex !important;

@@ -27,6 +27,7 @@ const renamingDocId = ref(null);
 const renameInput = ref("");
 const renameInputRefs = reactive({});
 const currentTheme = ref("dim");
+const activeMobileTab = ref('editor'); // 'editor' | 'preview'
 
 // HTML rendu depuis le texte Markdown
 const renderedHtml = computed(() => md.render(markdownText.value));
@@ -258,7 +259,7 @@ const finishRenaming = async (doc) => {
 	renameInput.value = "";
 };
 
-	// Exporter toutes les données IndexedDB en JSON et les télécharger
+// Exporter toutes les données IndexedDB en JSON et les télécharger
 const exportData = async () => {
 	const allDocs = await getDocuments();
 	const date = new Date();
@@ -309,7 +310,7 @@ const themes = [
 						<label for="my-drawer" class="btn btn-ghost btn-circle drawer-button lg:hidden text-base">
 							<font-awesome-icon icon="fa-solid fa-bars-staggered" />
 						</label>
-						<div class="dropdown dropdown-start">
+						<!-- <div class="dropdown dropdown-start">
 							<div tabindex="0" role="button" class="btn btn-ghost m-1 px-2 min-h-0 h-10 flex items-center gap-1">
 								Theme
 								<font-awesome-icon icon="fa-solid fa-angle-down" />
@@ -327,7 +328,7 @@ const themes = [
 									/>
 								</li>
 							</ul>
-						</div>
+						</div> -->
 					</div>
 				</div>
 				<div class="flex-none">
@@ -358,7 +359,7 @@ const themes = [
 
 			<!-- Contenu principal -->
 			<div>
-				<div class="editor-preview">
+				<div class="editor-preview pb-16 md:pb-0">
 					<ul
 						v-for="doc in documents"
 						:key="doc.id"
@@ -407,7 +408,10 @@ const themes = [
 					</ul>
 
 					<!-- Editeur Markdown -->
-					<div class="editor relative">
+					<div
+						class="editor relative w-full md:w-1/2 flex flex-col flex-1"
+						:class="{ 'hidden md:flex': activeMobileTab !== 'editor' }"
+					>
 						<codemirror
 							v-model="markdownText"
 							:extensions="extensions"
@@ -425,7 +429,11 @@ const themes = [
 					</div>
 
 					<!-- Preview Markdown -->
-					<div class="preview relative" ref="previewRef">
+					<div
+						class="preview relative w-full md:w-1/2 flex flex-col flex-1"
+						ref="previewRef"
+						:class="{ 'hidden md:flex': activeMobileTab !== 'preview' }"
+					>
 						<div class="pdf-content" v-html="renderedHtml"></div>
 
 						<div class="absolute bottom-3 right-3 flex flex-col gap-3">
@@ -439,6 +447,24 @@ const themes = [
 
 				</div>
 			</div>
+		</div>
+
+		<!-- Dock Navigation (Mobile Only) -->
+		<div class="dock dock-lg md:hidden z-50">
+			<button
+				@click="activeMobileTab = 'editor'"
+				:class="{ 'dock-active': activeMobileTab === 'editor' }"
+			>
+				<font-awesome-icon icon="fa-regular fa-pen-to-square" class="pb-1" />
+				<span class="dock-label">Éditeur</span>
+			</button>
+			<button
+				@click="activeMobileTab = 'preview'"
+				:class="{ 'dock-active': activeMobileTab === 'preview' }"
+			>
+				<font-awesome-icon icon="fa-regular fa-eye" class="pb-1" />
+				<span class="dock-label">Aperçu</span>
+			</button>
 		</div>
 
 		<!-- Sidebar -->
@@ -478,13 +504,12 @@ const themes = [
 						Extraire mes données
 					</a>
 				</li>
-				<li>
+				<!-- <li>
 					<a class="gap-2">
-						<!-- <font-awesome-icon icon="fa-solid fa-gear" /> -->
 						<font-awesome-icon icon="fa-solid fa-screwdriver-wrench" />
 						Paramètres
 					</a>
-				</li>
+				</li> -->
 
 				<div class="divider divider-start text-base-content/30">Documents</div>
 
