@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="public/pwa-512x512.svg" alt="Markkk Logo" width="120" height="120" />
+  <img src="public/img/Markkk.svg" alt="Markkk Logo" height="100" />
 
   # Markkk
 
