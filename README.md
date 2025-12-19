@@ -13,8 +13,8 @@
   [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
   [Fonctionnalités](#-fonctionnalités) •
-  [Preview](#-preview) •
-  [Installation](#-installation)
+  [Installation](#-installation) •
+  [Preview](https://fabiodevcode.github.io/Markkk/#/)
 </div>
 
 ---
@@ -44,7 +44,7 @@ Ce projet utilise les dernières technologies du web moderne :
 - **Pinia** (Gestion d'état)
 - **Vite PWA Plugin**
 
-## 📦 Installation & Utilisation
+## 📦 Installation
 
 1. **Cloner le projet**
    ```bash
