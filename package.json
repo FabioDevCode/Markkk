@@ -1,7 +1,7 @@
 {
 	"name": "markkk",
 	"version": "0.0.0",
-	"description": "Music App",
+	"description": "Éditeur Markdown & Convertisseur PDF",
 	"author": "Fabio RAMOS LOPES",
 	"license": "MIT",
 	"type": "module",

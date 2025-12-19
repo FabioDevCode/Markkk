@@ -8,7 +8,6 @@ import { Codemirror } from "vue-codemirror";
 import { markdown } from "@codemirror/lang-markdown";
 import { oneDark } from "@codemirror/theme-one-dark";
 import { saveDocument, getDocuments, getDocument, deleteDocument, updateDocument, saveTheme, getTheme } from "@/utils/db";
-// import markdownStyles from "@/assets/css/markdown.css?raw";
 import markdownStyles from "@/assets/css/pdf.css?raw";
 
 
@@ -280,21 +279,21 @@ const exportData = async () => {
 
 // Liste des thèmes disponibles
 const themes = [
-"dim",
-"light",
-"bumblebee",
-"emerald",
-"corporate",
-"lofi",
-"winter",
-"sunset",
-"black",
-"forest",
-"synthwave",
-"lemonade",
-"caramellatte",
-"valentine",
-"aqua"
+	"dim",
+	"light",
+	"bumblebee",
+	"emerald",
+	"corporate",
+	"lofi",
+	"winter",
+	"sunset",
+	"black",
+	"forest",
+	"synthwave",
+	"lemonade",
+	"caramellatte",
+	"valentine",
+	"aqua"
 ];
 </script>
 
