@@ -492,7 +492,7 @@ const themes = [
 				</div>
 
 				<li @click="newDocument">
-					<a class="gap-2">
+					<a class="gap-1 btn btn-sm btn-primary">
 						<font-awesome-icon icon="fa-solid fa-plus" />
 						Nouveau
 					</a>
