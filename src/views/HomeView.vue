@@ -1,8 +1,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted, nextTick, onUnmounted } from "vue";
 import { toast } from 'vue3-toastify';
-import html2canvas from "html2canvas-pro";
-window.html2canvas = html2canvas;
+import { convertHtmlToPdf } from "@/utils/gotenberg";
 import MarkdownIt from "markdown-it";
 import { Codemirror } from "vue-codemirror";
 import { markdown } from "@codemirror/lang-markdown";
@@ -19,6 +18,7 @@ const md = new MarkdownIt({
 });
 
 const markdownText = ref('');
+const isExportingPdf = ref(false);
 const currentDoc = ref(null);
 const documents = ref([]);
 const modalRefs = reactive({});
@@ -125,56 +125,31 @@ const selectDocument = async (doc) => {
 	markdownText.value = doc.content;
 };
 
-const printBrowser = () => {
+const exportToPdf = async () => {
 	if (!markdownText.value) return;
-
-	// Créer une iframe invisible
-	const iframe = document.createElement('iframe');
-	iframe.style.position = 'absolute';
-	iframe.style.width = '0px';
-	iframe.style.height = '0px';
-	iframe.style.border = 'none';
-	document.body.appendChild(iframe);
-
-	const doc = iframe.contentWindow.document;
-
-	// Écrire le contenu HTML de base
-	doc.open();
-	doc.write(`
-		<html>
-		<head>
-			<title>${currentDoc.value?.name || 'Document sans titre'}</title>
-			<style>
-				${markdownStyles}
-				@media print {
-					@page {
-						size: A4 portrait;
-					}
-					body {
-						-webkit-print-color-adjust: exact;
-					}
-				}
-			</style>
-		</head>
-		<body>
-			<div class="pdf-content">
-				${renderedHtml.value}
-			</div>
-		</body>
-		</html>
-	`);
-	doc.close();
-
-	// Attendre que le contenu soit chargé et les styles appliqués
-	iframe.contentWindow.focus();
-	setTimeout(() => {
-		iframe.contentWindow.print();
-		// Supprimer l'iframe après impression (ou annulation)
-		// On met un délai suffisant pour que l'impression se lance
-		setTimeout(() => {
-			document.body.removeChild(iframe);
-		}, 1000);
-	}, 100);
+	isExportingPdf.value = true;
+	try {
+		const filename = currentDoc.value?.name || 'document';
+		await convertHtmlToPdf(renderedHtml.value, markdownStyles, filename);
+		toast("PDF téléchargé !", {
+			type: "success",
+			theme: "colored",
+			position: "bottom-left",
+			hideProgressBar: true,
+			autoClose: 2000,
+		});
+	} catch (error) {
+		console.error("Erreur Gotenberg:", error);
+		toast("Erreur lors de la génération du PDF", {
+			type: "error",
+			theme: "colored",
+			position: "bottom-left",
+			hideProgressBar: true,
+			autoClose: 4000,
+		});
+	} finally {
+		isExportingPdf.value = false;
+	}
 };
 
 // Sauvegarde dans IndexedDB
@@ -437,8 +412,9 @@ const themes = [
 
 						<div class="absolute bottom-3 right-3 flex flex-col gap-3">
 							<div class="tooltip tooltip-left" data-tip="Télécharger le PDF">
-								<button @click="printBrowser" class="btn btn-lg btn-circle btn-neutral">
-									<font-awesome-icon icon="fa-solid fa-download" />
+								<button @click="exportToPdf" class="btn btn-lg btn-circle btn-neutral" :disabled="isExportingPdf">
+									<span v-if="isExportingPdf" class="loading loading-spinner"></span>
+									<font-awesome-icon v-else icon="fa-solid fa-download" />
 								</button>
 							</div>
 						</div>
